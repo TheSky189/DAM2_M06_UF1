@@ -1,0 +1,8 @@
+1;Client=jiajiao;Date=26-03-2024 18:51:53;
+1;Products=
+1;Amount=28.288000000000004 €
+
+2;Client=jose;Date=26-03-2024 18:52:25;
+2;Products=
+2;Amount=4.492800000000001 €
+

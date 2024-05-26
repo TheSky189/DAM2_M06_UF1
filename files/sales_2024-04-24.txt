@@ -1,0 +1,4 @@
+1;Client=model.Client@26653222;Date=24-04-2024 14:37:44;
+1;Products=
+1;Amount=881.9200000000001 €
+
