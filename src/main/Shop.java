@@ -150,10 +150,6 @@ public class Shop {
 		
 		
     	
-
-
-	
-
 	/**
 	 * load initial inventory to shop
 	 */

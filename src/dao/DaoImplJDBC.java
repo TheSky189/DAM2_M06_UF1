@@ -17,7 +17,7 @@ public class DaoImplJDBC implements Dao {
         	// cargar el driver JDBC
             Class.forName("com.mysql.cj.jdbc.Driver");
             // establecer coneccion
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop", "username", "password");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop", "root", "password");
         } catch (ClassNotFoundException | SQLException e) {
         	// imprimir exception en caso de error
             e.printStackTrace();

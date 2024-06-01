@@ -13,7 +13,7 @@ public class Employee extends Person implements Logable {
 	private int employeeId;
 	private String password;
 	// Connection using JDBC SQL
-	private Dao dao = new DaoImplJDBC();  // NUEVO  // Objeto DAO para la conexion a la base de datos
+	private Dao dao;  // NUEVO  // Objeto DAO para la conexion a la base de datos
 	
 	
 	//Implementa la interfaz Logable.
@@ -65,13 +65,11 @@ public class Employee extends Person implements Logable {
     	dao.connect();
     	
     	// get employee datos
-    	if(dao.getEmployee(user,password) != null) {
-    		success = true;
-    	}
+    	Employee employee = dao.getEmployee(employeeId, password);
     	
     	// desconectar datos
     	dao.disconnect();
-    	return success;
+    	return employee != null;
     }
     
 
