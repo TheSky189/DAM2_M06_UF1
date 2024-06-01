@@ -12,6 +12,6 @@ CREATE TABLE employee (
 );
 
 -- Insertar registros de prueba
-INSERT INTO employee (employeeId, name, password) VALUES (1, 'John Doe', 'password123');
-INSERT INTO employee (employeeId, name, password) VALUES (2, 'Jane Smith', 'mypassword');
-INSERT INTO employee (employeeId, name, password) VALUES (3, 'Mike Brown', 'securepass');
+INSERT INTO employee (employeeId, name, password) VALUES (1, 'Akali', 'akali');
+INSERT INTO employee (employeeId, name, password) VALUES (2, 'Zed', 'zed');
+INSERT INTO employee (employeeId, name, password) VALUES (3, 'Draven', 'draven');
