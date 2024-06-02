@@ -1,8 +1,6 @@
 package view;
 
 import model.Employee;
-import dao.Dao;
-import dao.DaoImplJDBC;
 
 import java.awt.Color;
 import java.awt.EventQueue;
