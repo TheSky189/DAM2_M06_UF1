@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Arrays;
+//import java.util.Arrays;
 
 public class Product {
 	//private int id;

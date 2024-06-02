@@ -1,14 +1,17 @@
 package dao;
 
+import exception.LimitLoginException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import model.Employee;
 
 public class DaoImplJDBC implements Dao {
     private Connection connection;
+
 
     // metodo para conectar al base de datos
     @Override
@@ -17,7 +20,7 @@ public class DaoImplJDBC implements Dao {
         	// cargar el driver JDBC
             Class.forName("com.mysql.cj.jdbc.Driver");
             // establecer coneccion
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop", "root", "password");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop", "root", "");
         } catch (ClassNotFoundException | SQLException e) {
         	// imprimir exception en caso de error
             e.printStackTrace();
@@ -29,8 +32,8 @@ public class DaoImplJDBC implements Dao {
         Employee employee = null; // inicializar el objeto Emplpyee
         String query = "SELECT * FROM employee WHERE employeeId = ? AND password = ?";
 
-        try {
-            PreparedStatement statement = connection.prepareStatement(query);
+        try (
+            PreparedStatement statement = connection.prepareStatement(query)){
             statement.setInt(1, employeeId);
             statement.setString(2, password);
             try (ResultSet resultSet = statement.executeQuery()) {

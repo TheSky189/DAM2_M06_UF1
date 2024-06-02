@@ -8,6 +8,10 @@ public abstract class Person {
 		this.name = name;
 	}
 	
+	public Person() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getName() {
 		return name;
 	}

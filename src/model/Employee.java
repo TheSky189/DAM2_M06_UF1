@@ -4,6 +4,7 @@ import main.Logable;
 import dao.Dao; // nuevo
 import dao.DaoImplJDBC;  // nuevo
 
+
 public class Employee extends Person implements Logable {
 	
 	//Define constantes finales USER con valor 123 y PASSWORD con valor "test".
@@ -13,13 +14,13 @@ public class Employee extends Person implements Logable {
 	private int employeeId;
 	private String password;
 	// Connection using JDBC SQL
-	private Dao dao;  // NUEVO  // Objeto DAO para la conexion a la base de datos
+	private Dao dao = new DaoImplJDBC();  // NUEVO  // Objeto DAO para la conexion a la base de datos
 	
 	
 	//Implementa la interfaz Logable.
 	
-	public Employee() {
-		super();
+	public Employee(String name) {
+		super(name);
 	}
 
 	//Constructor para inicializar los atributos del empleado
@@ -27,6 +28,10 @@ public class Employee extends Person implements Logable {
 		super(name);
 		this.employeeId = employeeId;
 		this.password = password;  // nuevo
+	}
+	
+	public Employee() {
+		super();
 	}
 	
 	
@@ -37,6 +42,15 @@ public class Employee extends Person implements Logable {
 
     public void setEmployeeId(int employeeId) {
         this.employeeId = employeeId;
+    }
+    
+    
+    public String getName() {
+    	return name;
+    }
+    
+    public void setName(String name) {
+    	this.name = name;
     }
     
     // nuevo getter y setter de contraseña
@@ -65,11 +79,13 @@ public class Employee extends Person implements Logable {
     	dao.connect();
     	
     	// get employee datos
-    	Employee employee = dao.getEmployee(employeeId, password);
+    	if(dao.getEmployee(user,password) != null) {
+    		success = true;
+    	}
     	
     	// desconectar datos
     	dao.disconnect();
-    	return employee != null;
+    	return success;
     }
     
 

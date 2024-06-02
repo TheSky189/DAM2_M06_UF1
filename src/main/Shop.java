@@ -69,7 +69,7 @@ public class Shop {
 		System.out.println("Contraseña: ");
 		String password = scanner.next();
 		
-		Employee employee = new Employee("test", employeeId); // nombre de empleado fijo "test" temporal
+		Employee employee = new Employee(); // nombre de empleado fijo "test" temporal
 		return employee.login(employeeId, password);
 		
 	    }

@@ -135,7 +135,7 @@ public class LoginView extends JFrame implements ActionListener {
         String username = textField.getText();
         String password = new String(passwordField.getPassword());
         
-        Employee employee = new Employee(username, Integer.parseInt(username)); // Crear empleado con el nombre como ID
+        Employee employee = new Employee(username); // Crear empleado con el nombre como ID
         
         // intentar iniciar sesion
         boolean loginSuccessful = employee.login(Integer.parseInt(username), password); // Intentar iniciar sesión
