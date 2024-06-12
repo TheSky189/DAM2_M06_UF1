@@ -32,7 +32,9 @@ public class Shop {
 	
 
 	final static double TAX_RATE = 1.04;
+	final static double DOLLAR_A_EURO_RATE = 1.10; // convertidor aplicado a todos
 
+	
 	public Shop() {
 	    //inventory = new Product[10];
 	    //sales = new Sale[10]; // Añade esta línea para inicializar el array sales
@@ -47,6 +49,7 @@ public class Shop {
     public ArrayList<Sale> getSales() {
         return sales;
     }
+    
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		Shop shop = new Shop();
@@ -183,10 +186,12 @@ public class Shop {
 		//}
 		System.out.print("Nombre: ");
 		String name = scanner.nextLine();
-		System.out.print("Precio mayorista: ");
+		System.out.print("Precio mayorista($): ");
 		double wholesalerPrice = scanner.nextDouble();
 		System.out.print("Stock: ");
 		int stock = scanner.nextInt();
+		
+        wholesalerPrice = convertirDollarEuro(wholesalerPrice); // Convertir el precio a dólares
 
 		addProduct(new Product(name, wholesalerPrice, true, stock));
 		System.out.println("Producto añadido correctamente");
@@ -266,7 +271,9 @@ public class Shop {
 
 		// Vender productos 
 		double totalAmount = 0.0;
+		ArrayList<Product> productsSold = new ArrayList<>();
 		String name = "";
+		
 		while (!name.equals("0")) {
 			System.out.println("Introduce el nombre del producto, escribir 0 para terminar:");
 			name = scanner.nextLine();
@@ -276,20 +283,19 @@ public class Shop {
 			}
 			
 			Product product = findProduct(name);
-			boolean productAvailable = false;
+			//boolean productAvailable = false;
 
 			if (product != null && product.isAvailable()) {
-				productAvailable = true;
+				//productAvailable = true;
 				totalAmount += product.getPublicPrice();
 				product.setStock(product.getStock() - 1);
 				// if no more stock, set as not available to sale
 				if (product.getStock() == 0) {
 					product.setAvailable(false);
 				}
+				productsSold.add(product);
 				System.out.println("Producto añadido con éxito");
-			}
-
-			if (!productAvailable) {
+			}else {
 				System.out.println("Producto no encontrado o sin stock");
 			}
 		}
@@ -314,13 +320,9 @@ public class Shop {
         	}
         
 		
-	    // Crear una nueva venta
-        ArrayList<Product> productsSold = new ArrayList<>();
-        for (Product product : inventory) {
-            if (product != null && !product.isAvailable()) {
-                productsSold.add(product);
-            }
-        }
+
+        //Sale sale = new Sale(client, productsSold, totalAmountWithTax, LocalDateTime.now());
+        
         Sale sale = new Sale(client, productsSold, totalAmountWithTax, LocalDateTime.now());
 
 	    // Agregar la fecha y hora dev la venta
@@ -335,16 +337,23 @@ public class Shop {
 	 * show all sales
 	 */
 	private void showSales() {
-		Scanner scanner = new Scanner(System.in);
 	    System.out.println("Lista de venta:");
+	    
 	    for (Sale sale : sales) {
 	        if (sale != null) {
-	            String clientName = sale.getClient().getName(); // Obtener el nombre del cliente
-	            String clientUpperCase = clientName.toUpperCase(); // Convertir el nombre del cliente a mayúsculas
-	            System.out.println("Cliente: " + clientUpperCase  + " - Precio: " + sale.getAmount() + " - Fecha y hora: " + sale.getFormattedDateTime());
+	            String clientUpperCase = sale.getClient().toUpperCase();
+	            System.out.println(" - Cliente: " + clientUpperCase);
+	            System.out.println(" - Productos: ");
+	            for (Product product : sale.getProducts()) {
+	            	System.out.print("  ; " + product.getName() + ", " + product.getPublicPrice() + "€ ");
+	            }
+	            System.out.println();
+                System.out.println(" - Precio total: " + sale.getAmount());
+                System.out.println(" - Fecha y hora: " + sale.getFormattedDateTime());
 	        }
 	    }
 	    // Preguntar al usuario si desea exportar las ventas a un archivo
+		Scanner scanner = new Scanner(System.in);
 	    System.out.print("¿Desea exportar todas las ventas a un archivo? (Si/No): ");
 	    String answer = scanner.nextLine().trim(); // Eliminar espacios en blanco alrededor de la entrada
 	    System.out.println("Respuesta del usuario: " + answer); // Debugging
@@ -363,12 +372,14 @@ public class Shop {
 	        int saleNumber = 1;
 	        for (Sale sale : sales) {
 	            if (sale != null) {
-	                writer.write(saleNumber + ";Client=" + sale.getClient() + ";Date=" + sale.getFormattedDateTime() + ";\n");
-	                writer.write(saleNumber + ";Products=");
-	                for (Product product : sale.getProducts()) {
-	                    writer.write(product.getName() + "," + product.getPublicPrice() + "€;");
+		            String clientUpperCase = sale.getClient().toUpperCase();
+
+	                writer.write(saleNumber + "; Client=" + clientUpperCase + "; Date=" + sale.getFormattedDateTime() + "; \n");
+	                writer.write(saleNumber + "; Products=");
+	                for (Product products : sale.getProducts()) {
+	                    writer.write(products.getName() + ", " + products.getPublicPrice() + "€; ");
 	                }
-	                writer.write("\n" + saleNumber + ";Amount=" + sale.getAmount() + "\n\n");
+	                writer.write("\n" + saleNumber + "; Amount=" + sale.getAmount() + "\n");
 	                saleNumber++;
 	            }
 	        }
@@ -440,9 +451,12 @@ public class Shop {
                 String line = scanner.nextLine();
                 String[] parts = line.split(";");
                 String name = parts[0].split(":")[1];
-                double wholesalerPrice = Double.parseDouble(parts[1].split(":")[1]);
+                double wholesalerPriceDollar = Double.parseDouble(parts[1].split(":")[1]);
                 int stock = Integer.parseInt(parts[2].split(":")[1]);
-                Product product = new Product(name, wholesalerPrice, true, stock);
+                
+                double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar); // Convertir a dólares
+                
+                Product product = new Product(name, wholesalerPriceEuro, true, stock);
                 inventory.add(product);
              }
             scanner.close();
@@ -450,6 +464,11 @@ public class Shop {
         } catch (FileNotFoundException e) {
             System.out.println("Error al cargar el archivo: " + e.getMessage());
         }
+    }
+    
+    
+    public double convertirDollarEuro(double euroAmount) {
+    	return euroAmount * DOLLAR_A_EURO_RATE;
     }
     
     
