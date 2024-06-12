@@ -15,6 +15,8 @@ import main.Shop;
 import utils.Constants;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 
 import javax.swing.JButton;
@@ -173,7 +175,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 			this.openProductView(Constants.OPTION_REMOVE_PRODUCT);
 		}
         if (e.getSource() == btnLoadInventory) {  // Extra no acabado.ERROR
-            this.openProductView(Constants.OPTION_LOAD_INVENTORY);
+            this.loadInventory();
         }
 		
 }
@@ -191,6 +193,13 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
     	//ProductView dialog = new ProductView(shop, option);
     	//dialog.setVisible(true);
         new ProductView(shop, option).setVisible(true);
+    }
+    
+    private void loadInventory() {
+        shop.showInventory();
+        // Aquí podrías actualizar alguna parte de tu vista si es necesario
+        // Por ejemplo, si tienes una lista de productos en la vista, deberías refrescarla
+        JOptionPane.showMessageDialog(this, "Inventario cargado exitosamente!");
     }
 
 	@Override
@@ -214,7 +223,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
             openProductView(Constants.OPTION_ADD_STOCK);
             break;
         case KeyEvent.VK_5:  // Extra no acabado.ERROR
-            openProductView(Constants.OPTION_LOAD_INVENTORY);
+            loadInventory();
             break;
         case KeyEvent.VK_9:
             openProductView(Constants.OPTION_ADD_STOCK);

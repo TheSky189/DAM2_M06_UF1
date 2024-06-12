@@ -161,6 +161,7 @@ public class ProductView extends JDialog implements ActionListener {
                     
                 // Extra: he intentado pero no me dio tiempo, ERROR
                 case Constants.OPTION_LOAD_INVENTORY:
+                	
                     break;
                     
                 default:
