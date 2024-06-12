@@ -50,4 +50,8 @@ public class Client extends Person implements Payable {
         return new Amount(INITIAL_BALANCE);
     }
 
+    public String toUpperCase() {
+        return getName().toUpperCase();
+    }
+
 }
