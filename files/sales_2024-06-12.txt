@@ -1,0 +1,6 @@
+1; Client=VICENTE; Date=12-06-2024 17:56:26; 
+1; Products=Apple, 8.8€; Manzana, 8.8€; Pera, 17.6€; 
+1; Amount=36.608000000000004 €
+2; Client=JIAJIAO; Date=12-06-2024 17:56:51; 
+2; Products=Hamburguesa, 26.400000000000002€; Fresa, 4.4€; 
+2; Amount=32.032000000000004 €
