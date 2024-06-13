@@ -72,6 +72,7 @@ public class Product {
 		this.stock = stock;
 	}
 	
+	
 	public void expire() {
 	    this.publicPrice *= (1 - 0.60); // Calcular precio público con descuento
 	}
@@ -88,7 +89,7 @@ public class Product {
 	@Override
 	public String toString() {
 	    return "Product [ name=" + name + ", publicPrice=" + publicPrice + ", wholesalerPrice=" + wholesalerPrice
-	            + ", available=" + available + stock + "]";
+	            + ", available=" + available + ", stock=" + stock + "]";
 	}
 
     
