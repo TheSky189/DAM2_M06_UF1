@@ -13,14 +13,11 @@ import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+    
 
-/*Muy buen trabajo Jiajao, 
- * a pesar de la ausencia en clase entregaste una gran practica. 
- * 1. Sale no usa ArrayList products, 
- * 3. Mejor pasar Date al constructor Sale 
- * 5. Linea extra, no hay datos productos                      <-  UF3_P1      
-*/    
-
+/* añadir un campo mas a inputInventory.txt al final con valor disponible o noDisponible 
+ * para asignar true o false al atributo producto.available   <- UF3_EXTRAORDINARIA
+ * */              
 
 public class Shop {
 	public Amount cash = new Amount(100.00);
@@ -29,6 +26,7 @@ public class Shop {
 	//private int numberProducts;
 	//private Sale[] sales; modificado
 	private ArrayList<Sale> sales;
+	private boolean available;
 	
 
 	final static double TAX_RATE = 1.04;
@@ -209,7 +207,7 @@ public class Shop {
 	    String name = scanner.next();
 	    Product product = findProduct(name);
 
-	    if (product != null) {
+	    if (product != null) {  
 	        // ask for stock
 	        System.out.print("Seleccione la cantidad a añadir: ");
 	        int stockToAdd = scanner.nextInt();
@@ -217,11 +215,25 @@ public class Shop {
 	        product.setStock(product.getStock() + stockToAdd); // Sumar al stock actual
 	        System.out.println("El stock del producto " + name + " ha sido actualizado a " + product.getStock());
 	    } else {
-	        System.out.println("No se ha encontrado el producto con nombre " + name);
+	        System.out.println("No se ha encontrado el producto con nombre " + name);  
 	    }
 	
+	    
+	    
+	    if (available = true) {
+	        // ask for stock
+	        System.out.print("Seleccione la cantidad a añadir: ");
+	        int stockToAdd = scanner.nextInt();
+	        // update stock product
+	        product.setStock(product.getStock() + stockToAdd); // Sumar al stock actual
+	        System.out.println("El stock del producto " + name + " ha sido actualizado a " + product.getStock());
+	    } else {
+	        System.out.println("El producto con nombre " + name + " no esta disponible.");  // new
+	    }
 
+	    
 	}
+	
 
 	/**
 	 * set a product as expired
@@ -298,7 +310,11 @@ public class Shop {
 			}else {
 				System.out.println("Producto no encontrado o sin stock");
 			}
+			
+			// si esta disponible o no; no del cantidad que queda  NEW
+
 		}
+
 
 		// show cost total
         totalAmount = totalAmount * TAX_RATE;
@@ -408,12 +424,7 @@ public class Shop {
 	 * @param product
 	 */
 	public void addProduct(Product product) {
-		//if (isInventoryFull()) {
-		//	System.out.println("No se pueden añadir más productos, se ha alcanzado el máximo de " + inventory.length);
-		//	return;
-		//}
-		//inventory[numberProducts] = product;
-		//numberProducts++;
+
         inventory.add(product);
 	}
 
@@ -440,7 +451,7 @@ public class Shop {
         return null;
     }
 	
-	
+
 
     // Método para cargar el inventario desde un archivo
     public void loadInventoryFromFile(String filename) {
@@ -454,9 +465,11 @@ public class Shop {
                 double wholesalerPriceDollar = Double.parseDouble(parts[1].split(":")[1]);
                 int stock = Integer.parseInt(parts[2].split(":")[1]);
                 
+                boolean available = Boolean(parts[3].split(":")[1]);
+                
                 double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar); // Convertir a dólares
                 
-                Product product = new Product(name, wholesalerPriceEuro, true, stock);
+                Product product = new Product(name, wholesalerPriceEuro, available, stock);
                 inventory.add(product);
              }
             scanner.close();
@@ -467,7 +480,15 @@ public class Shop {
     }
     
     
-    public double convertirDollarEuro(double euroAmount) {
+    private boolean Boolean(String string) {
+		// TODO Auto-generated method stub
+    	
+    	//comandos para ajustar 
+    	
+		return true;
+	}
+
+	public double convertirDollarEuro(double euroAmount) {
     	return euroAmount * DOLLAR_A_EURO_RATE;
     }
     
