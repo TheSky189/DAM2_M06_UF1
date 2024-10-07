@@ -127,6 +127,10 @@ public class ProductView extends JDialog implements ActionListener {
                             JOptionPane.showMessageDialog(null, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
+                    if (productNameField.getText().isEmpty() || stockField.getText().isEmpty() || priceField.getText().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Por favor, rellena todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     break;
 
                 case Constants.OPTION_ADD_STOCK:
@@ -144,6 +148,10 @@ public class ProductView extends JDialog implements ActionListener {
                             JOptionPane.showMessageDialog(null, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
+                    if (productNameField.getText().isEmpty() || stockField.getText().isEmpty() || priceField.getText().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Por favor, rellena todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     break;
 
                 case Constants.OPTION_REMOVE_PRODUCT:
@@ -159,10 +167,13 @@ public class ProductView extends JDialog implements ActionListener {
                     }
                     break;
                     
-                // Extra: he intentado pero no me dio tiempo, ERROR
                 case Constants.OPTION_LOAD_INVENTORY:
-                	
+                    shop.readInventory();  // Cargar el inventario desde el archivo
+                    InventoryView inventoryView = new InventoryView(shop);  // Crear una nueva ventana InventoryView
+                    inventoryView.setVisible(true);  // Mostrar la ventana con el inventario
                     break;
+
+
                     
                 default:
                     JOptionPane.showMessageDialog(this, "Opción no válida.");
@@ -199,12 +210,11 @@ public class ProductView extends JDialog implements ActionListener {
         dispose();
     }
 
-    // Eliminar un producto
+ // Eliminar un producto
     private void removeProduct(String name) {
         Product product = shop.findProduct(name);
         if (product != null) {
-        	// Eliminar producto
-            shop.removeProduct();
+            shop.getInventory().remove(product);  // Eliminar producto del inventario
             JOptionPane.showMessageDialog(this, "Producto eliminado correctamente", "Información", JOptionPane.INFORMATION_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this, "El producto no existe", "Error", JOptionPane.ERROR_MESSAGE);
