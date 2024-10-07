@@ -5,6 +5,7 @@ import model.Client;
 import model.Employee;
 import model.Product;
 import model.Sale;
+import dao.DaoImplFile;
 
 import java.util.ArrayList;  // nuevo agregado
 import java.io.File;
@@ -23,10 +24,10 @@ public class Shop {
 	public Amount cash = new Amount(100.00);
 	//private Product[] inventory; modifado 
     private ArrayList<Product> inventory;
-	//private int numberProducts;
 	//private Sale[] sales; modificado
 	private ArrayList<Sale> sales;
 	private boolean available;
+	private DaoImplFile dao;
 	
 
 	final static double TAX_RATE = 1.04;
@@ -36,8 +37,9 @@ public class Shop {
 	public Shop() {
 	    //inventory = new Product[10];
 	    //sales = new Sale[10]; // Añade esta línea para inicializar el array sales
-        inventory = new ArrayList<>();
-        sales = new ArrayList<>();
+        this.inventory = new ArrayList<>();
+        this.sales = new ArrayList<>();
+        this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
 	}
 
     public ArrayList<Product> getInventory() {
@@ -85,6 +87,7 @@ public class Shop {
 			System.out.println("\n===========================");
 			System.out.println("Menu principal miTienda.com");
 			System.out.println("===========================");
+            System.out.println("0) Exportar Inventario");  // Añadir nueva opcion
 			System.out.println("1) Contar caja");
 			System.out.println("2) Añadir producto");
 			System.out.println("3) Añadir stock");
@@ -99,6 +102,10 @@ public class Shop {
 			opcion = scanner.nextInt();
 
 			switch (opcion) {
+            case 0:
+                exportInventory();
+                break;
+                
 			case 1:
 				showCash();
 				break;
@@ -163,7 +170,46 @@ public class Shop {
 
 	}
 	
-	
+    // Metodo para leer el inventario usando DaoImplFile
+	public void readInventory() {
+	    this.inventory = (ArrayList<Product>) dao.getInventory();  // Cargar productos desde el archivo
+	    if (this.inventory != null && !this.inventory.isEmpty()) {
+	        System.out.println("Inventario cargado correctamente.");
+	    } else if (this.inventory.isEmpty()) {
+	        System.out.println("El archivo de inventario está vacío.");
+	    } else {
+	        System.out.println("Error al cargar el inventario.");
+	    }
+	}
+
+
+    // Metodo para escribir el inventario usando DaoImplFile
+    public boolean writeInventory() {
+        boolean result = dao.writeInventory(this.inventory);  // Guardar el inventario en el archivo
+        if (result) {
+            System.out.println("Inventario guardado correctamente.");
+        } else {
+            System.out.println("Error al guardar el inventario.");
+        }
+        return result;
+    }
+    
+    
+    // Metodo para exportar el inventario
+    private void exportInventory() {
+        System.out.println("Exportando inventario...");
+
+        // Llamar al método shop.writeInventory()
+        boolean result = writeInventory();
+
+        // Mostrar mensaje de confirmacion o error
+        if (result) {
+            System.out.println("Inventario exportado correctamente.");
+        } else {
+            System.out.println("Error al exportar el inventario.");
+        }
+    }
+    
 
 	/**
 	 * show current total cash
@@ -256,14 +302,17 @@ public class Shop {
 	/**
 	 * show all inventory
 	 */
-	public void showInventory() {
-	    System.out.println("Contenido actual de la tienda:");
-	    for (Product product : inventory) {
-	        if (product != null) {
-	            System.out.println(product);
-	        }
-	    }
-	}
+	
+    // Metodo para mostrar el inventario actual  NEW
+    public void showInventory() {
+        if (this.inventory != null && !this.inventory.isEmpty()) {
+            for (Product product : this.inventory) {
+                System.out.println(product);
+            }
+        } else {
+            System.out.println("No hay productos en el inventario.");
+        }
+    }
 
 
 	/**
@@ -335,10 +384,7 @@ public class Shop {
         		System.out.println("El cliente debe: " + amountDue + "€");
         	}
         
-		
-
-        //Sale sale = new Sale(client, productsSold, totalAmountWithTax, LocalDateTime.now());
-        
+		        
         Sale sale = new Sale(client, productsSold, totalAmountWithTax, LocalDateTime.now());
 
 	    // Agregar la fecha y hora dev la venta
@@ -346,8 +392,23 @@ public class Shop {
 
 	    // Agregar la venta al registro de ventas
 	    addSale(sale);
+	    
+	    writeInventoryToFile();  //NEW : PARA GUARDAR EL INVENTARIO ACTUALIZADO
 	}
 	
+	public void writeInventoryToFile() {
+	    try {
+	        FileWriter writer = new FileWriter("files/outputInventory.txt");
+	        for (Product product : inventory) {
+	            writer.write("productName:" + product.getName() + ";price:" + product.getWholesalerPrice() + ";stock:" + product.getStock() + ";available:" + product.isAvailable() + "\n");
+	        }
+	        writer.close();
+	        System.out.println("Inventario guardado correctamente.");
+	    } catch (IOException e) {
+	        System.out.println("Error al guardar el inventario: " + e.getMessage());
+	    }
+	}
+
 
 	/**
 	 * show all sales
@@ -465,9 +526,16 @@ public class Shop {
                 double wholesalerPriceDollar = Double.parseDouble(parts[1].split(":")[1]);
                 int stock = Integer.parseInt(parts[2].split(":")[1]);
                 
-                boolean available = Boolean(parts[3].split(":")[1]);
+                // Convertir el valor de available de texto a booleano
+                //boolean available = Boolean(parts[3].split(":")[1]);
+                //boolean available = Boolean.parseBoolean(parts[3].split(":")[1]);
                 
-                double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar); // Convertir a dólares
+                // Ajustar para leer "disponible" o "no disponible" y convertir a booleano
+                String availableText = parts[3].split(":")[1].trim();
+                boolean available = availableText.equalsIgnoreCase("disponible");
+                
+                // Convertir el precio mayorista de dolares a euros
+                double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar);
                 
                 Product product = new Product(name, wholesalerPriceEuro, available, stock);
                 inventory.add(product);
@@ -479,14 +547,6 @@ public class Shop {
         }
     }
     
-    
-    private boolean Boolean(String string) {
-		// TODO Auto-generated method stub
-    	
-    	//comandos para ajustar 
-    	
-		return true;
-	}
 
 	public double convertirDollarEuro(double euroAmount) {
     	return euroAmount * DOLLAR_A_EURO_RATE;
