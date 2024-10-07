@@ -36,6 +36,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 	private JButton btnAnadirStock;
 	private JButton btnEliminarProducto;
 	private JButton btnLoadInventory;  // Extra
+	private JButton btnExportInventory;
 
 	/**
 	 * Launch the application.
@@ -77,11 +78,26 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 		lblMenu.setBounds(200, 87, 343, 48);
 		contentPane.add(lblMenu);
 		
+        // Añadir boton "0. Exportar Inventario"
+        btnExportInventory = new JButton("0. Exportar inventario");
+        btnExportInventory.setForeground(new Color(51, 255, 255));
+        btnExportInventory.setBackground(new Color(51, 102, 204));
+        btnExportInventory.setFont(new Font("Tahoma", Font.BOLD, 12));
+        btnExportInventory.setBounds(103, 166, 249, 42);
+        contentPane.add(btnExportInventory);
+        btnExportInventory.addActionListener(this);
+
+        // Eventos del teclado
+        contentPane.requestFocusInWindow();
+        contentPane.addKeyListener(this);
+        this.addKeyListener(this);
+        this.setFocusable(true);
+		
 		btnContarCaja = new JButton("1. Contar caja");
 		btnContarCaja.setForeground(new Color(102, 255, 255));
 		btnContarCaja.setBackground(new Color(51, 102, 204));
 		btnContarCaja.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnContarCaja.setBounds(103, 180, 249, 42);
+		btnContarCaja.setBounds(391, 166, 249, 42);
 		contentPane.add(btnContarCaja);
         btnContarCaja.addActionListener(this);
         
@@ -94,7 +110,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnAnadirProducto.setBounds(103, 278, 249, 42);
+		btnAnadirProducto.setBounds(103, 232, 249, 42);
 		contentPane.add(btnAnadirProducto);
         btnAnadirProducto.addActionListener(this);
 
@@ -107,7 +123,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		btnAnadirStock.setBounds(391, 181, 249, 42);
+		btnAnadirStock.setBounds(391, 232, 249, 42);
 		contentPane.add(btnAnadirStock);
         btnAnadirStock.addActionListener(this);
 
@@ -116,7 +132,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 		btnEliminarProducto.setForeground(new Color(51, 255, 255));
 		btnEliminarProducto.setBackground(new Color(51, 102, 153));
 		btnEliminarProducto.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnEliminarProducto.setBounds(253, 368, 249, 42);
+		btnEliminarProducto.setBounds(254, 368, 249, 42);
 		contentPane.add(btnEliminarProducto);
         btnEliminarProducto.addActionListener(this);
         
@@ -126,7 +142,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
         btnLoadInventory.setForeground(new Color(51, 255, 255));
         btnLoadInventory.setBackground(new Color(51, 102, 153));
         btnLoadInventory.setFont(new Font("Tahoma", Font.BOLD, 11));
-        btnLoadInventory.setBounds(391, 278, 249, 42);
+        btnLoadInventory.setBounds(103, 300, 249, 42);
         contentPane.add(btnLoadInventory);
         btnLoadInventory.addActionListener(this);
 
@@ -162,6 +178,9 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		
+        if (e.getSource() == btnExportInventory) {
+            this.exportInventory(); // Exportar inventario y abrir vista de exportacion
+        }
 		if (e.getSource() == btnContarCaja) {
 			this.openCashView();
 		} 
@@ -196,12 +215,32 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
     }
     
     private void loadInventory() {
-        shop.showInventory();
-        // Aquí podrías actualizar alguna parte de tu vista si es necesario
-        // Por ejemplo, si tienes una lista de productos en la vista, deberías refrescarla
-        JOptionPane.showMessageDialog(this, "Inventario cargado exitosamente!");
+        // Cargar el inventario desde el archivo en Shop
+        shop.readInventory();
+        
+        // Crear una nueva ventana InventoryView y pasar el objeto Shop con el inventario cargado
+        InventoryView inventoryView = new InventoryView(shop);
+        inventoryView.setVisible(true);  // Mostrar la ventana con el inventario
     }
 
+
+    // Metodo para exportar el inventario
+    private void exportInventory() {
+        boolean result = shop.writeInventory();  // Exportar el inventario
+        File exportFile = new File("files/outputInventory.txt");  // Archivo exportado
+
+        if (result) {
+            JOptionPane.showMessageDialog(this, "Inventario exportado correctamente!");
+
+            // Mostrar el archivo exportado en la nueva vista
+            new ExportInvView(shop, exportFile);  // Abre la nueva ventana con el contenido del archivo
+            
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al exportar el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -213,6 +252,9 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 		// TODO Auto-generated method stub
 		
         switch (e.getKeyCode()) {
+        case KeyEvent.VK_0:
+            exportInventory();
+            break;
         case KeyEvent.VK_1:
             openCashView();
             break;
@@ -222,7 +264,7 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
         case KeyEvent.VK_3:
             openProductView(Constants.OPTION_ADD_STOCK);
             break;
-        case KeyEvent.VK_5:  // Extra no acabado.ERROR
+        case KeyEvent.VK_5: 
             loadInventory();
             break;
         case KeyEvent.VK_9:
