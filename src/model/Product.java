@@ -11,7 +11,7 @@ public class Product {
     private int stock;
     //private static int totalProducts;
     
-    static double EXPIRATION_RATE=0.60;
+    static double EXPIRATION_RATE=0.60;  // rebaja al 60% por aprx. caducacion
     
     public Product(String name, double wholesalerPrice, boolean available, int stock) {
         this.name = name;
@@ -19,7 +19,7 @@ public class Product {
         this.available = available;
         this.stock = stock;
         this.publicPrice = 2 * wholesalerPrice;  // Calcular precio publico
-        expire(); // Calcular precio público con descuento
+        expire(); // aplicar descuento si es necesario
     }
 
 
@@ -74,7 +74,7 @@ public class Product {
 	
 	
 	public void expire() {
-	    this.publicPrice *= (1 - 0.60); // Calcular precio público con descuento
+	    this.publicPrice *= (1 - EXPIRATION_RATE); // aplicar descuento 
 	}
 
 	//public static int getTotalProducts() {
