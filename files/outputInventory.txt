@@ -1,4 +1,4 @@
-productName:Manzana;price:11.0;stock:10;available:true
-productName:Pera;price:22.0;stock:20;available:true
-productName:Hamburguesa;price:33.0;stock:30;available:true
-productName:Fresa;price:5.5;stock:20;available:true
+productName:Manzana;price:10.0;stock:10;available:false
+productName:Pera;price:20.0;stock:20;available:false
+productName:Hamburguesa;price:30.0;stock:30;available:false
+productName:Fresa;price:5.0;stock:20;available:false
