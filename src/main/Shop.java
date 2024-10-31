@@ -26,7 +26,6 @@ public class Shop {
     private ArrayList<Product> inventory;
 	//private Sale[] sales; modificado
 	private ArrayList<Sale> sales;
-	private boolean available;
 	private DaoImplFile dao;
 	
 
@@ -263,20 +262,6 @@ public class Shop {
 	    } else {
 	        System.out.println("No se ha encontrado el producto con nombre " + name);  
 	    }
-	
-	    
-	    
-	    if (available = true) {
-	        // ask for stock
-	        System.out.print("Seleccione la cantidad a añadir: ");
-	        int stockToAdd = scanner.nextInt();
-	        // update stock product
-	        product.setStock(product.getStock() + stockToAdd); // Sumar al stock actual
-	        System.out.println("El stock del producto " + name + " ha sido actualizado a " + product.getStock());
-	    } else {
-	        System.out.println("El producto con nombre " + name + " no esta disponible.");  // new
-	    }
-
 	    
 	}
 	
@@ -393,10 +378,11 @@ public class Shop {
 	    // Agregar la venta al registro de ventas
 	    addSale(sale);
 	    
-	    writeInventoryToFile();  //NEW : PARA GUARDAR EL INVENTARIO ACTUALIZADO
+	    //writeInventoryToFile();  //NEW : PARA GUARDAR EL INVENTARIO ACTUALIZADO
 	}
 	
-	public void writeInventoryToFile() {
+	// IS INNECESSARY / CAN DELETE
+	/*public void writeInventoryToFile() {
 	    try {
 	        FileWriter writer = new FileWriter("files/outputInventory.txt");
 	        for (Product product : inventory) {
@@ -407,7 +393,7 @@ public class Shop {
 	    } catch (IOException e) {
 	        System.out.println("Error al guardar el inventario: " + e.getMessage());
 	    }
-	}
+	}*/
 
 
 	/**
