@@ -1,7 +1,9 @@
 package dao;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
+import java.time.format.DateTimeFormatter;
 
 import model.Employee;
 import model.Product;
@@ -40,12 +42,22 @@ public class DaoImplFile implements Dao {
     // metodo para escribir el inventario en archivo
     @Override
     public boolean writeInventory(List<Product> inventory) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("files/outputInventory.txt"))) {
-            for (Product product : inventory) {
-                writer.write("productName:" + product.getName() + ";price:" + product.getWholesalerPrice() 
-                + ";stock:" + product.getStock() + ";available:" + product.isAvailable());
-                writer.newLine();
-            }
+        try {
+        	
+        	// generar archivo con formato inventory_yyyy-mm-dd.txt
+        	String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        	FileWriter writer = new FileWriter("files/inventory_" + date + ".txt");
+        	
+        	// escribir los datos del inventario al archivo
+        	int count = 0;
+        	for (Product product : inventory) {
+        		count++;
+        		writer.write(count + ", Product:" + product.getName() + ",Stock:" + product.getStock() + ";\n");
+        	}
+        	writer.write("Numero total de productos:" + count + ";\n");
+        	
+        	writer.close();
+         
             return true;  // Devolver true si todo sale bien
         } catch (IOException e) {
             e.printStackTrace();
