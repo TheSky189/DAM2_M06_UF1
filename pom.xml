@@ -19,6 +19,11 @@
       <maven.compiler.target>13</maven.compiler.target>
   </properties>
   <build>
+	    
+	<!--Create For TEST -->
+	<sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
+    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
