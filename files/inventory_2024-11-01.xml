@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<products total="4">
+    <product id="1">
+        <name>Manzana</name>
+        <price currency="Euro">10.0</price>
+        <stock>10</stock>
+    </product>
+    <product id="2">
+        <name>Pera</name>
+        <price currency="Euro">20.0</price>
+        <stock>20</stock>
+    </product>
+    <product id="3">
+        <name>Hamburguesa</name>
+        <price currency="Euro">30.0</price>
+        <stock>30</stock>
+    </product>
+    <product id="4">
+        <name>Fresa</name>
+        <price currency="Euro">5.0</price>
+        <stock>20</stock>
+    </product>
+</products>
