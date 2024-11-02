@@ -179,6 +179,11 @@ public class Shop {
 		
 		// usar SaxReader para cargar txt formato XML     // nuevo 
         this.inventory = dao.getInventory();
+        if (this.inventory != null && !this.inventory.isEmpty()) {
+            System.out.println("Inventario cargado correctamente desde el archivo XML.");
+        } else {
+            System.out.println("Error al cargar el inventario desde el archivo XML.");
+        }
 	}
 	
     // Metodo para leer el inventario usando DaoImplFile
