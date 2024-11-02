@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<products total="5">
+<products total="4">
     <product id="1">
         <name>Manzana</name>
         <price currency="Euro">10.0</price>
@@ -19,10 +19,5 @@
         <name>Fresa</name>
         <price currency="Euro">5.0</price>
         <stock>20</stock>
-    </product>
-    <product id="5">
-        <name>Anda</name>
-        <price currency="Euro">5.5</price>
-        <stock>14</stock>
     </product>
 </products>
