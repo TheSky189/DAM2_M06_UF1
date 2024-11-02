@@ -13,7 +13,8 @@ public class DaoImpXml implements Dao {
     // usar SaxReader para cargar inventario
     @Override
     public List<Product> getInventory() {
-        saxReader.parseInventoryFile("user/inputInventory.xml"); // leer documento XML
+        saxReader.parseInventoryFile("files/inputInventory.xml"); // leer documento XML
+        // saxReader.parseInventoryFile("user/inputInventory.xml"); // para test de error
         return saxReader.getInventory(); // devolver lista
     }
 
