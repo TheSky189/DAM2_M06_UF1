@@ -7,6 +7,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,14 +16,25 @@ public class SaxReader extends DefaultHandler {
     private String currentElement; // Etiqueta XML actual
     private Product currentProduct; // Producto actual en proceso
 
-    public void parseInventoryFile(String filePath) {
+    public List<Product> parseInventoryFile(String filePath) {
+        File file = new File(filePath);
+    	if (!file.exists()) {
+            System.out.println("Error: El archivo " + filePath + " no existe.");
+            return null;
+        }
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
-            saxParser.parse(new File(filePath), this);
+            saxParser.parse(file, this);
+            return inventory;  
+        } catch (SAXException e) {
+            System.out.println("Error de SAX al leer el archivo XML: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error de IO al leer el archivo XML: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error inesperado al leer el archivo XML: " + e.getMessage());
         }
+		return null;
     }
 
     @Override
@@ -57,7 +69,7 @@ public class SaxReader extends DefaultHandler {
         currentElement = null;
     }
 
-    public ArrayList<Product> getInventory() {
-        return new ArrayList<>(inventory);
+    public List<Product> getInventory() {
+        return inventory;
     }
 }

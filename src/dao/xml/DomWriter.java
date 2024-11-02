@@ -18,7 +18,7 @@ import java.util.List;
 
 public class DomWriter {
 
-    public void writeInventoryToFile(List<Product> inventory) {
+    public boolean writeInventoryToFile(List<Product> inventory) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -59,13 +59,15 @@ public class DomWriter {
 
             // Crear el archivo de salida con el formato de fecha
             String fileName = "files/inventory_" + LocalDate.now() + ".xml";
+            
             StreamResult result = new StreamResult(new File(fileName));
-
             transformer.transform(source, result);
-            System.out.println("Inventario exportado correctamente a: " + fileName);
+            return true;
 
-        } catch (ParserConfigurationException | TransformerException e) {
-            e.printStackTrace();
-        }
+	        } catch (Exception e) {
+	            System.out.println("Error al exportar el inventario: " + e.getMessage());
+	            return false;
+	        }
+
     }
 }

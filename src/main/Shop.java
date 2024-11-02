@@ -5,16 +5,17 @@ import model.Client;
 import model.Employee;
 import model.Product;
 import model.Sale;
-import dao.DaoImplFile;
-import dao.xml.DomWriter;
-import dao.xml.SaxReader;
+//import dao.DaoImplFile;
+import dao.DaoImpXml;
 
 import java.util.ArrayList;  // nuevo agregado
+import java.util.List;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
     
 
@@ -25,10 +26,12 @@ import java.time.LocalDateTime;
 public class Shop {
 	public Amount cash = new Amount(100.00);
 	//private Product[] inventory; modifado 
-    private ArrayList<Product> inventory;
+    //private ArrayList<Product> inventory;
+    private List<Product> inventory;
 	//private Sale[] sales; modificado
 	private ArrayList<Sale> sales;
-	private DaoImplFile dao;
+	//private DaoImplFile dao;
+	private final DaoImpXml dao;
 	
 
 	final static double TAX_RATE = 1.04;
@@ -38,18 +41,22 @@ public class Shop {
 	public Shop() {
 	    //inventory = new Product[10];
 	    //sales = new Sale[10]; // Añade esta línea para inicializar el array sales
-        this.inventory = new ArrayList<>();
+        //this.inventory = new ArrayList<>();  //LAST
+		this.inventory = new ArrayList<>();
         this.sales = new ArrayList<>();
-        this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
+        this.dao = new DaoImpXml();  // new
+        //this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
 	}
 
-    public ArrayList<Product> getInventory() {
+	
+    public List<Product> getInventory() {
         return inventory;
     }
     
     public ArrayList<Sale> getSales() {
         return sales;
     }
+   
     
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
@@ -171,11 +178,7 @@ public class Shop {
 		//loadInventoryFromFile("inputInventory.txt");  
 		
 		// usar SaxReader para cargar txt formato XML     // nuevo 
-        SaxReader saxReader = new SaxReader();
-        saxReader.parseInventoryFile("files/inputInventory.xml");
-        this.inventory = (ArrayList<Product>) saxReader.getInventory();
-        System.out.println("Inventario cargado correctamente desde el archivo XML.");
-
+        this.inventory = dao.getInventory();
 	}
 	
     // Metodo para leer el inventario usando DaoImplFile
@@ -206,9 +209,13 @@ public class Shop {
     // Metodo para exportar el inventario
     private void exportInventory() {
         System.out.println("Exportando inventario...");
+        boolean result = dao.writeInventory(this.inventory);
 
-        DomWriter domWriter = new DomWriter();
-        domWriter.writeInventoryToFile(this.inventory);
+        if (result) {
+            System.out.println("Inventario exportado correctamente a: files/inventory_" + LocalDate.now() + ".xml");
+        } else {
+            System.out.println("Error al exportar el inventario.");
+        }
     }
     
 
@@ -342,7 +349,7 @@ public class Shop {
 					product.setAvailable(false);
 				}
 				productsSold.add(product);
-				System.out.println("Producto añadido con éxito");
+				System.out.println("Producto añadido con exito");
 			}else {
 				System.out.println("Producto no encontrado o sin stock");
 			}
@@ -360,7 +367,7 @@ public class Shop {
             // Si el cliente tiene saldo suficiente, realizar el pago y actualizar el saldo de la tienda
             if (client.pay(totalAmountWithTax)) {
                 cash = new Amount(cash.getValue() + totalAmountWithTax.getValue());
-                System.out.println("Venta realizada con éxito, total: " + totalAmountWithTax);
+                System.out.println("Venta realizada con exito, total: " + totalAmountWithTax);
                 //Saldo cliente despues de la compra
         		double amountSaldo = client.getBalance().getValue() - totalAmountWithTax.getValue();
                 System.out.println("El saldo de la cuenta cliente: " + amountSaldo + "€");
