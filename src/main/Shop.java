@@ -6,6 +6,8 @@ import model.Employee;
 import model.Product;
 import model.Sale;
 import dao.DaoImplFile;
+import dao.xml.DomWriter;
+import dao.xml.SaxReader;
 
 import java.util.ArrayList;  // nuevo agregado
 import java.io.File;
@@ -165,7 +167,14 @@ public class Shop {
 		//addProduct(new Product("Pera", 20.00, true, 20));
 		//addProduct(new Product("Hamburguesa", 30.00, true, 30));
 		//addProduct(new Product("Fresa", 5.00, true, 20));
-      loadInventoryFromFile("inputInventory.txt");  // nuevo 
+		
+		//loadInventoryFromFile("inputInventory.txt");  
+		
+		// usar SaxReader para cargar txt formato XML     // nuevo 
+        SaxReader saxReader = new SaxReader();
+        saxReader.parseInventoryFile("files/inputInventory.xml");
+        this.inventory = (ArrayList<Product>) saxReader.getInventory();
+        System.out.println("Inventario cargado correctamente desde el archivo XML.");
 
 	}
 	
@@ -198,15 +207,8 @@ public class Shop {
     private void exportInventory() {
         System.out.println("Exportando inventario...");
 
-        // Llamar al método shop.writeInventory()
-        boolean result = writeInventory();
-
-        // Mostrar mensaje de confirmacion o error
-        if (result) {
-            System.out.println("Inventario exportado correctamente.");
-        } else {
-            System.out.println("Error al exportar el inventario.");
-        }
+        DomWriter domWriter = new DomWriter();
+        domWriter.writeInventoryToFile(this.inventory);
     }
     
 
@@ -500,7 +502,7 @@ public class Shop {
 	
 
 
-    // Método para cargar el inventario desde un archivo
+    // Metodo para cargar el inventario desde un archivo
     public void loadInventoryFromFile(String filename) {
         try {
             File file = new File("files/" + filename);
@@ -508,6 +510,14 @@ public class Shop {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] parts = line.split(";");
+                
+                // Verificar que hay suficientes partes en la linea antes de continuar
+                if (parts.length < 3) {
+                    System.out.println("Línea de datos incompleta: " + line);
+                    continue; 
+                }
+
+                // extraer y procesar los datos de cada parte
                 String name = parts[0].split(":")[1];
                 double wholesalerPriceDollar = Double.parseDouble(parts[1].split(":")[1]);
                 int stock = Integer.parseInt(parts[2].split(":")[1]);
@@ -517,19 +527,23 @@ public class Shop {
                 //boolean available = Boolean.parseBoolean(parts[3].split(":")[1]);
                 
                 // Ajustar para leer "disponible" o "no disponible" y convertir a booleano
-                String availableText = parts[3].split(":")[1].trim();
-                boolean available = availableText.equalsIgnoreCase("disponible");
+                // String availableText = parts[3].split(":")[1].trim();
+                // boolean available = availableText.equalsIgnoreCase("disponible");
                 
                 // Convertir el precio mayorista de dolares a euros
                 double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar);
                 
-                Product product = new Product(name, wholesalerPriceEuro, available, stock);
+                Product product = new Product(name, wholesalerPriceEuro, true, stock);
                 inventory.add(product);
              }
             scanner.close();
             System.out.println("Inventario cargado correctamente desde el archivo: " + filename);
         } catch (FileNotFoundException e) {
             System.out.println("Error al cargar el archivo: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Error al convertir valor numerico: " + e.getMessage());
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Error en el formato de linea de inventario: " + e.getMessage());
         }
     }
     
