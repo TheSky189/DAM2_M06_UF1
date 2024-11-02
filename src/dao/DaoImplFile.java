@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 import model.Employee;
 import model.Product;
-
+/*
 public class DaoImplFile implements Dao {
 	
 	// metodo para obtener inventario desde archivo
@@ -80,5 +80,7 @@ public class DaoImplFile implements Dao {
     public void disconnect() {
         // No se requiere implementacion para archivos
     }
+   
     
 }
+*/
