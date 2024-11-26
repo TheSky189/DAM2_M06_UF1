@@ -24,6 +24,10 @@ public class Amount {
     public void setCurrency(String currency) {
         this.currency = currency;
     }
+    
+    // Incluir anotaciones javax.xml.bind 
+    
+    
 
     @Override
     public String toString() {

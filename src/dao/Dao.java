@@ -7,7 +7,7 @@ import model.Employee;
 import java.util.List;
 import model.Product;
 
-
+// Modificar po atributo shop.dao como DaoImplJaxb 
 
 public interface Dao {
 	// metodo para conectar al base de datos

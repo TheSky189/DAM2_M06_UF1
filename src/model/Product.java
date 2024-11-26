@@ -1,9 +1,12 @@
 package model;
 
-//import java.util.Arrays;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlType(propOrder = {"name", "available", "wholesalerPrice", "publicPrice", "stock"})
 public class Product {
-	//private int id;
+	private int id;
     private String name;
     private double publicPrice;
     private double wholesalerPrice;
@@ -12,6 +15,8 @@ public class Product {
     //private static int totalProducts;
     
     static double EXPIRATION_RATE=0.60;  // rebaja al 60% por aprx. caducacion
+    
+    public Product() {}
     
     public Product(String name, double wholesalerPrice, boolean available, int stock) {
         this.name = name;
@@ -24,14 +29,18 @@ public class Product {
 
 
 	
-	//public int getId() {
-	//	return id;
-	//}
 
-	//public void setId(int id) {
-	//	this.id = id;
-	//}
-
+    @XmlAttribute(name = "id")
+    public int getId() {
+    	return id;
+    }
+    
+    public void setId(int id) {
+    	this.id = id;
+    }
+    
+    
+    @XmlAttribute(name = "name")
 	public String getName() {
 		return name;
 	}
@@ -40,6 +49,7 @@ public class Product {
 		this.name = name;
 	}
 
+	@XmlElement(name = "publicPrice")
 	public double getPublicPrice() {
 		return publicPrice;
 	}
@@ -48,6 +58,7 @@ public class Product {
 		this.publicPrice = publicPrice;
 	}
 
+	@XmlElement(name = "wholesalerPrice")
 	public double getWholesalerPrice() {
 		return wholesalerPrice;
 	}
@@ -56,6 +67,7 @@ public class Product {
 		this.wholesalerPrice = wholesalerPrice;
 	}
 
+	@XmlElement(name = "available")
 	public boolean isAvailable() {
 		return available;
 	}
@@ -64,6 +76,7 @@ public class Product {
 		this.available = available;
 	}
 
+	@XmlElement(name = "stock")
 	public int getStock() {
 		return stock;
 	}
@@ -76,16 +89,11 @@ public class Product {
 	public void expire() {
 	    this.publicPrice *= (1 - EXPIRATION_RATE); // aplicar descuento 
 	}
-
-	//public static int getTotalProducts() {
-	//	return totalProducts;
-	//}
-
-	//public static void setTotalProducts(int totalProducts) {
-	//	Product.totalProducts = totalProducts;
-	//}
 	
-    
+	// Incluir anotaciones javax.xml.bind
+	
+	
+	
 	@Override
 	public String toString() {
 	    return "Product [ name=" + name + ", publicPrice=" + publicPrice + ", wholesalerPrice=" + wholesalerPrice

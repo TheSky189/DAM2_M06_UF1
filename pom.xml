@@ -12,7 +12,30 @@
           <version>8.0.25</version>
           <scope>runtime</scope>
       </dependency>
+      
+      <!--NEW JAXB DEPENDENCY-->
+      <dependency>
+		<groupId>javax.xml.bind</groupId>
+		<artifactId>jaxb-api</artifactId>
+		<version>2.3.1</version>
+	  </dependency>
+	  <dependency>
+		<groupId>javax.activation</groupId>
+		<artifactId>activation</artifactId>
+		<version>1.1</version>
+	  </dependency>
+	  <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>2.3.1</version>
+      </dependency>
+	  <dependency>
+		<groupId>org.glassfish.jaxb</groupId>
+		<artifactId>jaxb-runtime</artifactId>
+		<version>4.0.5</version>
+	  </dependency>
   </dependencies>
+  
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <maven.compiler.source>13</maven.compiler.source>

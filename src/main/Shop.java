@@ -6,7 +6,8 @@ import model.Employee;
 import model.Product;
 import model.Sale;
 //import dao.DaoImplFile;
-import dao.DaoImpXml;
+import dao.DaoImplJaxb;
+import dao.Dao;
 
 import java.util.ArrayList;  // nuevo agregado
 import java.util.List;
@@ -31,7 +32,7 @@ public class Shop {
 	//private Sale[] sales; modificado
 	private ArrayList<Sale> sales;
 	//private DaoImplFile dao;
-	private final DaoImpXml dao;
+	private Dao dao = new DaoImplJaxb();
 	
 
 	final static double TAX_RATE = 1.04;
@@ -44,7 +45,7 @@ public class Shop {
         //this.inventory = new ArrayList<>();  //LAST
 		this.inventory = new ArrayList<>();
         this.sales = new ArrayList<>();
-        this.dao = new DaoImpXml();  // new
+        this.dao = new DaoImplJaxb();  // new
         //this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
 	}
 
@@ -178,6 +179,7 @@ public class Shop {
 		//loadInventoryFromFile("inputInventory.txt");  
 		
 		// usar SaxReader para cargar txt formato XML     // nuevo 
+        System.out.println("Cargando inventario...");
         this.inventory = dao.getInventory();
         if (this.inventory != null && !this.inventory.isEmpty()) {
             System.out.println("Inventario cargado correctamente desde el archivo XML.");
@@ -395,19 +397,7 @@ public class Shop {
 	    //writeInventoryToFile();  //NEW : PARA GUARDAR EL INVENTARIO ACTUALIZADO
 	}
 	
-	// IS INNECESSARY / CAN DELETE
-	/*public void writeInventoryToFile() {
-	    try {
-	        FileWriter writer = new FileWriter("files/outputInventory.txt");
-	        for (Product product : inventory) {
-	            writer.write("productName:" + product.getName() + ";price:" + product.getWholesalerPrice() + ";stock:" + product.getStock() + ";available:" + product.isAvailable() + "\n");
-	        }
-	        writer.close();
-	        System.out.println("Inventario guardado correctamente.");
-	    } catch (IOException e) {
-	        System.out.println("Error al guardar el inventario: " + e.getMessage());
-	    }
-	}*/
+
 
 
 	/**
@@ -489,13 +479,7 @@ public class Shop {
         inventory.add(product);
 	}
 
-	/**
-	 * check if inventory is full or not
-	 */
-	//public boolean isInventoryFull() {
-    //    return numberProducts == inventory.length;
 
-	//}
 	
 	/**
 	 * find product by name
