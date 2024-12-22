@@ -27,5 +27,13 @@ public interface Dao {
 	// metodo para escribir el inventario al archivo
 	// devuelve true si esta correcto, false error
 	boolean writeInventory(List<Product> inventory);
+
+	boolean exportInventoryToHistory(List<Product> inventory);
+
+	boolean addProduct(Product product);
+
+	boolean deleteProduct(String productName);
+
+	boolean addStock(String productName, int additionalStock);
 	
 }

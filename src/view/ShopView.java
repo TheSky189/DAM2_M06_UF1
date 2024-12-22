@@ -226,18 +226,26 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 
     // Metodo para exportar el inventario
     private void exportInventory() {
-        boolean result = shop.writeInventory();  // Exportar el inventario
-        File exportFile = new File("files/outputInventory.txt");  // Archivo exportado
-
-        if (result) {
-            JOptionPane.showMessageDialog(this, "Inventario exportado correctamente!");
-
-            // Mostrar el archivo exportado en la nueva vista
-            new ExportInvView(shop, exportFile);  // Abre la nueva ventana con el contenido del archivo
-            
+    	
+        if (shop.getInventory() != null && !shop.getInventory().isEmpty()) {
+            new ExportInvView(shop.getInventory());
         } else {
-            JOptionPane.showMessageDialog(this, "Error al exportar el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No hay productos en el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+    	
+//        boolean result = shop.writeInventory();  // Exportar el inventario
+//        File exportFile = new File("files/outputInventory.txt");  // Archivo exportado
+//
+//        if (result) {
+//            JOptionPane.showMessageDialog(this, "Inventario exportado correctamente!");
+//
+//            // Mostrar el archivo exportado en la nueva vista
+//            //new ExportInvView(shop, exportFile);  // Abre la nueva ventana con el contenido del archivo
+//            new ExportInvView(shop.getInventory());
+//            
+//        } else {
+//            JOptionPane.showMessageDialog(this, "Error al exportar el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
+//        }
     }
 
     

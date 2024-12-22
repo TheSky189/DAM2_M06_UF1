@@ -2,47 +2,43 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
+import java.util.List;
 import model.Product;
-import main.Shop;
 
 public class ExportInvView extends JDialog {
 
     private static final long serialVersionUID = 1L;
-    private Shop shop;
 
-    public ExportInvView(Shop shop, File file) {
-        this.shop = shop;
+    public ExportInvView(List<Product> inventory) {
         setTitle("Inventario Exportado");
-        setSize(500, 400);
+        setSize(600, 400);
         setLayout(new BorderLayout());
 
-        // Crear JTextArea para mostrar el contenido del archivo
+        // Crear JTextArea para mostrar la lista de productos
         JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);  // No editable
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));  // Usar fuente monospaciada
+        textArea.setEditable(false); // No editable
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12)); // Fuente monoespaciada
 
-        // Leer el contenido del archivo y mostrarlo en el JTextArea
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            StringBuilder content = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");  // Añadir cada línea del archivo al StringBuilder
-            }
-            textArea.setText(content.toString());  // Establecer el contenido en el JTextArea
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error al leer el archivo exportado.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Construir el contenido del inventario
+        StringBuilder content = new StringBuilder();
+        for (Product product : inventory) {
+            content.append("ID: ").append(product.getId())
+                    .append(", Nombre: ").append(product.getName())
+                    .append(", Precio: ").append(product.getWholesalerPrice())
+                    .append(", Stock: ").append(product.getStock())
+                    .append(", Disponible: ").append(product.isAvailable())
+                    .append("\n");
         }
+        textArea.setText(content.toString());
 
-        // Añadir el JTextArea a un JScrollPane para hacerlo scrollable
+        // Añadir el JTextArea a un JScrollPane
         JScrollPane scrollPane = new JScrollPane(textArea);
         add(scrollPane, BorderLayout.CENTER);
 
         // Panel inferior con botón para cerrar
         JPanel buttonPanel = new JPanel();
         JButton closeButton = new JButton("Cerrar");
-        closeButton.addActionListener(e -> dispose());  // Cerrar el diálogo
+        closeButton.addActionListener(e -> dispose()); // Cerrar el diálogo
         buttonPanel.add(closeButton);
         add(buttonPanel, BorderLayout.SOUTH);
 

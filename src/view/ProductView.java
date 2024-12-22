@@ -87,100 +87,102 @@ public class ProductView extends JDialog implements ActionListener {
         switch (option) {
             case Constants.OPTION_ADD_PRODUCT:
                 priceField.setVisible(true);
+                priceLabel.setVisible(true);
+                stockField.setVisible(true);
+                stockLabel.setVisible(true);
                 break;
             case Constants.OPTION_ADD_STOCK:
                 priceField.setVisible(false);
                 priceLabel.setVisible(false);
+                stockField.setVisible(true);
+                stockLabel.setVisible(true);
                 break;
             case Constants.OPTION_REMOVE_PRODUCT:
-                stockField.setVisible(false);
-                stockLabel.setVisible(false);
                 priceField.setVisible(false);
                 priceLabel.setVisible(false);
+                stockField.setVisible(false);
+                stockLabel.setVisible(false);
                 break;
             default:
                 break;
         }
     }
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        // en caso de hacer clic en el botón OK
         if (e.getSource() == okButton) {
+            if (productNameField.getText().isEmpty() || 
+                (option != Constants.OPTION_REMOVE_PRODUCT && stockField.getText().isEmpty()) || 
+                (option == Constants.OPTION_ADD_PRODUCT && priceField.getText().isEmpty())) {
+                JOptionPane.showMessageDialog(this, "Por favor, rellena todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             Product product;
             switch (this.option) {
                 case Constants.OPTION_ADD_PRODUCT:
-                    // verificar que el producto no existe
                     product = shop.findProduct(productNameField.getText());
                     if (product != null) {
                         JOptionPane.showMessageDialog(null, "Producto ya existe ", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         try {
-                            // Convertir el valor de Amount a double
                             double wholesalerPrice = Double.parseDouble(priceField.getText());
-                            product = new Product(productNameField.getText(), wholesalerPrice, true, Integer.parseInt(stockField.getText()));
+                            int stock = Integer.parseInt(stockField.getText());
+                            product = new Product(productNameField.getText(), wholesalerPrice, true, stock);
                             shop.addProduct(product);
-                            JOptionPane.showMessageDialog(null, "Producto añadido ", "Information", JOptionPane.INFORMATION_MESSAGE);
-                            // liberar pantalla actual
+                            JOptionPane.showMessageDialog(null, "Producto añadido correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
                             dispose();
                         } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(null, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                         }
-                    }
-                    if (productNameField.getText().isEmpty() || stockField.getText().isEmpty() || priceField.getText().isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Por favor, rellena todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
                     }
                     break;
 
                 case Constants.OPTION_ADD_STOCK:
-                    // verificar que el producto existe
                     product = shop.findProduct(productNameField.getText());
                     if (product == null) {
-                        JOptionPane.showMessageDialog(null, "Producto no existe ", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Producto no existe", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         try {
-                            product.setStock(product.getStock() + Integer.parseInt(stockField.getText()));
-                            JOptionPane.showMessageDialog(null, "Stock actualizado ", "Information", JOptionPane.INFORMATION_MESSAGE);
-                            // liberar pantalla actual
-                            dispose();
+                            int additionalStock = Integer.parseInt(stockField.getText());
+                            if (shop.getDao().addStock(productNameField.getText(), additionalStock)) {
+                                product.setStock(product.getStock() + additionalStock);
+                                JOptionPane.showMessageDialog(this, "Stock añadido correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                                dispose();
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Error al añadir stock a la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
                         } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(null, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    if (productNameField.getText().isEmpty() || stockField.getText().isEmpty() || priceField.getText().isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "Por favor, rellena todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
                     break;
+
 
                 case Constants.OPTION_REMOVE_PRODUCT:
-                    // verificar que el producto existe
                     product = shop.findProduct(productNameField.getText());
                     if (product == null) {
-                        JOptionPane.showMessageDialog(null, "Producto no existe ", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Producto no existe", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        shop.getInventory().remove(product);
-                        JOptionPane.showMessageDialog(null, "Producto eliminado", "Information", JOptionPane.INFORMATION_MESSAGE);
-                        // liberar pantalla actual
-                        dispose();
+                        if (shop.getDao().deleteProduct(productNameField.getText())) {
+                            shop.getInventory().remove(product);
+                            JOptionPane.showMessageDialog(this, "Producto eliminado correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Error al eliminar el producto de la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                     break;
-                    
-                case Constants.OPTION_LOAD_INVENTORY:
-                    shop.readInventory();  // Cargar el inventario desde el archivo
-                    InventoryView inventoryView = new InventoryView(shop);  // Crear una nueva ventana InventoryView
-                    inventoryView.setVisible(true);  // Mostrar la ventana con el inventario
-                    break;
 
 
-                    
                 default:
-                    JOptionPane.showMessageDialog(this, "Opción no válida.");
+                    JOptionPane.showMessageDialog(this, "Opción no válida.", "Error", JOptionPane.ERROR_MESSAGE);
                     break;
             }
-        } 
+        }
     }
+
 
 
 

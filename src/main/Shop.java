@@ -6,13 +6,14 @@ import model.Employee;
 import model.Product;
 import model.Sale;
 //import dao.DaoImplFile;
-import dao.DaoImplJaxb;
+//import dao.DaoImplJaxb;
 import dao.Dao;
+import dao.DaoImplJDBC;
 
 import java.util.ArrayList;  // nuevo agregado
 import java.util.List;
-import java.io.File;
-import java.io.FileNotFoundException;
+//import java.io.File;
+//import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,21 +33,27 @@ public class Shop {
 	//private Sale[] sales; modificado
 	private ArrayList<Sale> sales;
 	//private DaoImplFile dao;
-	private Dao dao = new DaoImplJaxb();
+	
+	//private Dao dao = new DaoImplJaxb();
+	private Dao dao = new DaoImplJDBC();  // p4
 	
 
 	final static double TAX_RATE = 1.04;
 	final static double DOLLAR_A_EURO_RATE = 1.10; // convertidor aplicado a todos
 
-	
+	public Dao getDao() {
+	    return this.dao;
+	}
+
 	public Shop() {
 	    //inventory = new Product[10];
 	    //sales = new Sale[10]; // Añade esta línea para inicializar el array sales
         //this.inventory = new ArrayList<>();  //LAST
 		this.inventory = new ArrayList<>();
         this.sales = new ArrayList<>();
-        this.dao = new DaoImplJaxb();  // new
+        //this.dao = new DaoImplJaxb();  // inicializar con DaiImplJaxb
         //this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
+        this.dao = new DaoImplJDBC();
 	}
 
 	
@@ -62,6 +69,9 @@ public class Shop {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		Shop shop = new Shop();
+		
+		shop.dao.connect();
+		
 		shop.loadInventory();
 		
 		// Iniciar sesion
@@ -170,23 +180,37 @@ public class Shop {
 	/**
 	 * load initial inventory to shop
 	 */
+//	public void loadInventory() {
+//		//addProduct(new Product("Manzana", 10.00, true, 10));
+//		//addProduct(new Product("Pera", 20.00, true, 20));
+//		//addProduct(new Product("Hamburguesa", 30.00, true, 30));
+//		//addProduct(new Product("Fresa", 5.00, true, 20));
+//		
+//		//loadInventoryFromFile("inputInventory.txt");  
+//		
+//		// usar SaxReader para cargar txt formato XML     // nuevo 
+//        System.out.println("Cargando inventario...");
+//        this.inventory = dao.getInventory();
+//        if (this.inventory != null && !this.inventory.isEmpty()) {
+//            System.out.println("Inventario cargado correctamente desde el archivo XML.");
+//        } else {
+//            System.out.println("Error al cargar el inventario desde el archivo XML.");
+//        }
+//	}
+	
 	public void loadInventory() {
-		//addProduct(new Product("Manzana", 10.00, true, 10));
-		//addProduct(new Product("Pera", 20.00, true, 20));
-		//addProduct(new Product("Hamburguesa", 30.00, true, 30));
-		//addProduct(new Product("Fresa", 5.00, true, 20));
-		
-		//loadInventoryFromFile("inputInventory.txt");  
-		
-		// usar SaxReader para cargar txt formato XML     // nuevo 
-        System.out.println("Cargando inventario...");
-        this.inventory = dao.getInventory();
-        if (this.inventory != null && !this.inventory.isEmpty()) {
-            System.out.println("Inventario cargado correctamente desde el archivo XML.");
-        } else {
-            System.out.println("Error al cargar el inventario desde el archivo XML.");
-        }
+	    System.out.println("Cargando inventario desde base de datos...");
+	    dao.connect(); 
+	    this.inventory = dao.getInventory();
+
+	    if (this.inventory != null && !this.inventory.isEmpty()) {
+	        System.out.println("Inventario cargado correctamente desde base de datos.");
+	    } else {
+	        System.out.println("Error al cargar inventario o esta vacío.");
+	    }
 	}
+
+
 	
     // Metodo para leer el inventario usando DaoImplFile
 	public void readInventory() {
@@ -213,17 +237,32 @@ public class Shop {
     }
     
     
-    // Metodo para exportar el inventario
+//    // Metodo para exportar el inventario
+//    private void exportInventory() {
+//        System.out.println("Exportando inventario...");
+//        boolean result = dao.writeInventory(this.inventory);
+//
+//        if (result) {
+//            System.out.println("Inventario exportado correctamente a: files/inventory_" + LocalDate.now() + ".xml");
+//        } else {
+//            System.out.println("Error al exportar el inventario.");
+//        }
+//    }
+    
+    
     private void exportInventory() {
-        System.out.println("Exportando inventario...");
-        boolean result = dao.writeInventory(this.inventory);
+        System.out.println("Exportando inventario a la tabla historical_inventory...");
+        boolean result = dao.exportInventoryToHistory(this.inventory);
 
         if (result) {
-            System.out.println("Inventario exportado correctamente a: files/inventory_" + LocalDate.now() + ".xml");
+            System.out.println("Inventario exportado correctamente a la tabla historica.");
+            loadInventory();
         } else {
             System.out.println("Error al exportar el inventario.");
         }
     }
+
+
     
 
 	/**
@@ -238,48 +277,58 @@ public class Shop {
 	 * add a new product to inventory getting data from console
 	 */
 	public void addProduct() {
-		Scanner scanner = new Scanner(System.in);
-		//if (isInventoryFull()) {
-		//	System.out.println("No se pueden añadir más productos");
-		//	return;
-		//}
-		System.out.print("Nombre: ");
-		String name = scanner.nextLine();
-		System.out.print("Precio mayorista($): ");
-		double wholesalerPrice = scanner.nextDouble();
-		System.out.print("Stock: ");
-		int stock = scanner.nextInt();
-		
-        wholesalerPrice = convertirDollarEuro(wholesalerPrice); // Convertir el precio a dólares
+	    Scanner scanner = new Scanner(System.in);
 
-		addProduct(new Product(name, wholesalerPrice, true, stock));
-		System.out.println("Producto añadido correctamente");
-		
+	    System.out.print("Nombre del producto: ");
+	    String name = scanner.nextLine();
+	    System.out.print("Precio mayorista($): ");
+	    double wholesalerPrice = scanner.nextDouble();
+	    System.out.print("Stock: ");
+	    int stock = scanner.nextInt();
 
+	    wholesalerPrice = convertirDollarEuro(wholesalerPrice);
+
+	    Product product = new Product(name, wholesalerPrice, true, stock);
+	    boolean result = dao.addProduct(product);
+
+	    if (result) {
+	        System.out.println("Producto añadido correctamente.");
+	        loadInventory(); 
+	    } else {
+	        System.out.println("Error al añadir el producto.");
+	    }
 	}
+
 	
 
 	/**
 	 * add stock for a specific product
 	 */
 	public void addStock() {
-		Scanner scanner = new Scanner(System.in);
-	    System.out.print("Seleccione un nombre de producto: ");
-	    String name = scanner.next();
-	    Product product = findProduct(name);
+	    Scanner scanner = new Scanner(System.in);
 
-	    if (product != null) {  
-	        // ask for stock
-	        System.out.print("Seleccione la cantidad a añadir: ");
-	        int stockToAdd = scanner.nextInt();
-	        // update stock product
-	        product.setStock(product.getStock() + stockToAdd); // Sumar al stock actual
-	        System.out.println("El stock del producto " + name + " ha sido actualizado a " + product.getStock());
+	    System.out.print("Nombre del producto: ");
+	    String name = scanner.nextLine();
+	    System.out.print("Cantidad a agregar: ");
+	    int additionalStock = scanner.nextInt();
+
+	    boolean result = dao.addStock(name, additionalStock);
+
+	    if (result) {
+	        Product product = findProduct(name);
+	        if (product != null) {
+	            product.setStock(product.getStock() + additionalStock);
+	            System.out.println("Stock añadido correctamente.");
+	        } else {
+	            System.out.println("Producto no encontrado en la lista de inventario local.");
+	        }
 	    } else {
-	        System.out.println("No se ha encontrado el producto con nombre " + name);  
+	        System.out.println("Error al añadir stock. El producto no existe en la base de datos.");
 	    }
-	    
 	}
+
+
+
 	
 
 	/**
@@ -499,49 +548,49 @@ public class Shop {
 
 
     // Metodo para cargar el inventario desde un archivo
-    public void loadInventoryFromFile(String filename) {
-        try {
-            File file = new File("files/" + filename);
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(";");
-                
-                // Verificar que hay suficientes partes en la linea antes de continuar
-                if (parts.length < 3) {
-                    System.out.println("Línea de datos incompleta: " + line);
-                    continue; 
-                }
-
-                // extraer y procesar los datos de cada parte
-                String name = parts[0].split(":")[1];
-                double wholesalerPriceDollar = Double.parseDouble(parts[1].split(":")[1]);
-                int stock = Integer.parseInt(parts[2].split(":")[1]);
-                
-                // Convertir el valor de available de texto a booleano
-                //boolean available = Boolean(parts[3].split(":")[1]);
-                //boolean available = Boolean.parseBoolean(parts[3].split(":")[1]);
-                
-                // Ajustar para leer "disponible" o "no disponible" y convertir a booleano
-                // String availableText = parts[3].split(":")[1].trim();
-                // boolean available = availableText.equalsIgnoreCase("disponible");
-                
-                // Convertir el precio mayorista de dolares a euros
-                double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar);
-                
-                Product product = new Product(name, wholesalerPriceEuro, true, stock);
-                inventory.add(product);
-             }
-            scanner.close();
-            System.out.println("Inventario cargado correctamente desde el archivo: " + filename);
-        } catch (FileNotFoundException e) {
-            System.out.println("Error al cargar el archivo: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            System.out.println("Error al convertir valor numerico: " + e.getMessage());
-        } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Error en el formato de linea de inventario: " + e.getMessage());
-        }
-    }
+//    public void loadInventoryFromFile(String filename) {
+//        try {
+//            File file = new File("files/" + filename);
+//            Scanner scanner = new Scanner(file);
+//            while (scanner.hasNextLine()) {
+//                String line = scanner.nextLine();
+//                String[] parts = line.split(";");
+//                
+//                // Verificar que hay suficientes partes en la linea antes de continuar
+//                if (parts.length < 3) {
+//                    System.out.println("Línea de datos incompleta: " + line);
+//                    continue; 
+//                }
+//
+//                // extraer y procesar los datos de cada parte
+//                String name = parts[0].split(":")[1];
+//                double wholesalerPriceDollar = Double.parseDouble(parts[1].split(":")[1]);
+//                int stock = Integer.parseInt(parts[2].split(":")[1]);
+//                
+//                // Convertir el valor de available de texto a booleano
+//                //boolean available = Boolean(parts[3].split(":")[1]);
+//                //boolean available = Boolean.parseBoolean(parts[3].split(":")[1]);
+//                
+//                // Ajustar para leer "disponible" o "no disponible" y convertir a booleano
+//                // String availableText = parts[3].split(":")[1].trim();
+//                // boolean available = availableText.equalsIgnoreCase("disponible");
+//                
+//                // Convertir el precio mayorista de dolares a euros
+//                double wholesalerPriceEuro = convertirDollarEuro(wholesalerPriceDollar);
+//                
+//                Product product = new Product(name, wholesalerPriceEuro, true, stock);
+//                inventory.add(product);
+//             }
+//            scanner.close();
+//            System.out.println("Inventario cargado correctamente desde el archivo: " + filename);
+//        } catch (FileNotFoundException e) {
+//            System.out.println("Error al cargar el archivo: " + e.getMessage());
+//        } catch (NumberFormatException e) {
+//            System.out.println("Error al convertir valor numerico: " + e.getMessage());
+//        } catch (ArrayIndexOutOfBoundsException e) {
+//            System.out.println("Error en el formato de linea de inventario: " + e.getMessage());
+//        }
+//    }
     
 
 	public double convertirDollarEuro(double euroAmount) {
@@ -560,18 +609,26 @@ public class Shop {
         sales.add(sale);
     }
     
-    // Método para eliminar un producto del inventario
+    // para eliminar un producto del inventario
     public void removeProduct() {
-		Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         System.out.print("Seleccione el nombre del producto a eliminar: ");
         String name = scanner.next();
-        Product product = findProduct(name);
-        if (product != null) {
-            inventory.remove(product);
-            System.out.println("Producto eliminado del inventario: " + name);
+        boolean result = dao.deleteProduct(name);
+
+        if (result) {
+            loadInventory();
+            System.out.println("Producto eliminado correctamente.");
         } else {
-            System.out.println("Producto no encontrado en el inventario: " + name);
+            System.out.println("Error al eliminar el producto.");
         }
     }
 
+
+//        if (product != null) {
+//            inventory.remove(product);
+//            System.out.println("Producto eliminado del inventario: " + name);
+//        } else {
+//            System.out.println("Producto no encontrado en el inventario: " + name);
+//        }
 }

@@ -1,6 +1,6 @@
 package dao;
 
-import exception.LimitLoginException;
+//import exception.LimitLoginException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -23,7 +23,9 @@ public class DaoImplJDBC implements Dao {
         	// cargar el driver JDBC
             Class.forName("com.mysql.cj.jdbc.Driver");
             // establecer coneccion con bbdd
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop", "root", "");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop?serverTimezone=UTC", "root", "");
+            connection.setAutoCommit(true);
+            
         } catch (ClassNotFoundException | SQLException e) {
         	// imprimir exception en caso de error
             e.printStackTrace();
@@ -41,6 +43,7 @@ public class DaoImplJDBC implements Dao {
             PreparedStatement statement = connection.prepareStatement(query)){
             statement.setInt(1, employeeId);  // asignar valor ID empleado
             statement.setString(2, password);  // asignar valor contraseña 
+            
             try (
             		ResultSet resultSet = statement.executeQuery()) {
                 	// Si hay resultado, crear nuevo objeto Employee con los datos obtenidos
@@ -73,49 +76,161 @@ public class DaoImplJDBC implements Dao {
     
     // metodo para obtener inventario desde bbdd
     @Override
-    public List<Product> getInventory(){
-    	List<Product> inventory = new ArrayList<>();  // inicializar la lista de productos
-        String query = "SELECT * FROM product";  // consultar sql para tener todos productos
-        
+    public List<Product> getInventory() {
+        List<Product> inventory = new ArrayList<>();
+        String query = "SELECT id, name, price, stock, available FROM inventory";
+
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
-        	// recorrer resultado consulta y agregar productos a la lista
             while (resultSet.next()) {
-                String productName = resultSet.getString("productName");  // obtener nombre producto
-                double price = resultSet.getDouble("price");  // obtener precio
-                boolean available = resultSet.getBoolean("available"); // obtener disponibilidad
-                int stock = resultSet.getInt("stock");  // obtener stock
-                
-                // Crear nuevo objeto producto 
-                Product product = new Product(productName, price, available, stock);  
-                // añadir producto al lista
+                // leer desde bbdd
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                double price = resultSet.getDouble("price");
+                int stock = resultSet.getInt("stock");
+                boolean available = resultSet.getBoolean("available");
+
+                // crear producto y añdir a la lista
+                Product product = new Product(name, price, available, stock);
+                product.setId(id); // configurar id de los productos
                 inventory.add(product);
             }
         } catch (SQLException e) {
-        	// caso error
+            System.err.println("Error al cargar inventario desde la base de datos: " + e.getMessage());
             e.printStackTrace();
         }
-        return inventory;  // devolver la lista producto
+        return inventory; 
     }
+
     
     // metodo para escribir el inventario en bbdd
     @Override
     public boolean writeInventory(List<Product> inventory) {
-        String query = "INSERT INTO product (productName, price, stock) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE price = VALUES(price), stock = VALUES(stock)";
+    	String query = "INSERT INTO inventory (name, price, stock, available) VALUES (?, ?, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE price = VALUES(price), stock = VALUES(stock), available = VALUES(available)";
+
+
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             for (Product product : inventory) {
                 statement.setString(1, product.getName()); // asignar nombre producto
-                statement.setDouble(2, product.getWholesalerPrice());  // asignar precio prod.
-                statement.setInt(3, product.getStock());  // asignar stock prodct.
-                statement.addBatch();  // añadir consulta al batch
+                statement.setDouble(2, product.getWholesalerPrice()); // asignar precio prod.
+                statement.setInt(3, product.getStock()); // asignar stock product
+                statement.setBoolean(4, product.isAvailable()); // asignar disponibilidad
+                statement.addBatch(); // añadir consulta al batch
             }
-            // se usa batch cuando tiene muchas operaciones repetitivas
-            statement.executeBatch();
+            statement.executeBatch(); // ejecutar todas las consultas en el batch
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;  // devolver false en caso error
+            return false; // devolver false en caso de error
+        }
+        
+    }
+
+    
+    
+    @Override
+    public boolean exportInventoryToHistory(List<Product> inventory) {
+        String query = "INSERT INTO historical_inventory (id_product, name, wholesalerPrice, stock, available, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+        try {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                for (Product product : inventory) {
+                    statement.setInt(1, product.getId());
+                    statement.setString(2, product.getName());
+                    statement.setDouble(3, product.getWholesalerPrice());
+                    statement.setInt(4, product.getStock());
+                    statement.setBoolean(5, product.isAvailable());
+
+                    
+                    System.out.println("Adding to batch: " + statement.toString());
+
+                    statement.addBatch();
+                }
+                int[] results = statement.executeBatch();
+                connection.commit();
+                System.out.println("Batch executed successfully. Rows affected: " + results.length);
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error during export: " + e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                System.err.println("Error during rollback: " + rollbackEx.getMessage());
+            }
+            return false;
+        } finally {
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
+
+
+
+
+
+
+
+    
+    @Override
+    public boolean addProduct(Product product) {
+        String query = "INSERT INTO inventory (name, price, stock, available) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, product.getName());
+            statement.setDouble(2, product.getWholesalerPrice());
+            statement.setInt(3, product.getStock());
+            statement.setBoolean(4, product.isAvailable());
+
+            // 打印调试信息
+            System.out.println("Executing SQL: " + statement.toString());
+
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Error: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
+    @Override
+    public boolean addStock(String productName, int additionalStock) {
+    	String query = "UPDATE inventory SET stock = stock + ? WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, additionalStock);
+            statement.setString(2, productName);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    
+    @Override
+    public boolean deleteProduct(String productName) {
+    	String query = "DELETE FROM inventory WHERE name = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, productName);
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    
+
     
 }

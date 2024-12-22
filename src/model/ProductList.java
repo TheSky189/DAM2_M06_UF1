@@ -24,6 +24,7 @@ public class ProductList {
 	// para establecer la lista de productos y actualizar el total
 	public void setProductList(ArrayList<Product> products) {
 		this.products = products;
+	    this.updateTotal(); // Actualizar el total automaticamente
 	}
 
 	
