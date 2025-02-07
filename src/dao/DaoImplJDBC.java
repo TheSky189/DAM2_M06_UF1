@@ -78,8 +78,9 @@ public class DaoImplJDBC implements Dao {
     @Override
     public List<Product> getInventory() {
         List<Product> inventory = new ArrayList<>();
+        //String query = "SELECT id, product, price, stock, available FROM inventory";   THIS IS TEST FOR ERROR
         String query = "SELECT id, name, price, stock, available FROM inventory";
-
+        
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
             while (resultSet.next()) {
@@ -113,7 +114,7 @@ public class DaoImplJDBC implements Dao {
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             for (Product product : inventory) {
                 statement.setString(1, product.getName()); // asignar nombre producto
-                statement.setDouble(2, product.getWholesalerPrice()); // asignar precio prod.
+                statement.setDouble(2, product.getWholesalerPrice().getValue()); // asignar precio prod.
                 statement.setInt(3, product.getStock()); // asignar stock product
                 statement.setBoolean(4, product.isAvailable()); // asignar disponibilidad
                 statement.addBatch(); // añadir consulta al batch
@@ -138,7 +139,7 @@ public class DaoImplJDBC implements Dao {
                 for (Product product : inventory) {
                     statement.setInt(1, product.getId());
                     statement.setString(2, product.getName());
-                    statement.setDouble(3, product.getWholesalerPrice());
+                    statement.setDouble(3, product.getWholesalerPrice().getValue());
                     statement.setInt(4, product.getStock());
                     statement.setBoolean(5, product.isAvailable());
 
@@ -181,7 +182,7 @@ public class DaoImplJDBC implements Dao {
         String query = "INSERT INTO inventory (name, price, stock, available) VALUES (?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, product.getName());
-            statement.setDouble(2, product.getWholesalerPrice());
+            statement.setDouble(2, product.getWholesalerPrice().getValue());
             statement.setInt(3, product.getStock());
             statement.setBoolean(4, product.isAvailable());
 

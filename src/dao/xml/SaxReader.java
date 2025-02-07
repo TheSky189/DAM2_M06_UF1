@@ -1,5 +1,6 @@
 package dao.xml;
 
+import model.Amount;
 import model.Product;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -53,8 +54,8 @@ public class SaxReader extends DefaultHandler {
         if ("wholesalerPrice".equals(currentElement)) {
             // Asignar el precio mayorista y precio publico basado en el precio mayorista
             double wholesalerPrice = Double.parseDouble(value);
-            currentProduct.setWholesalerPrice(wholesalerPrice);
-            currentProduct.setPublicPrice(wholesalerPrice * 2);  // Calcular precio publico basado del precio mayorista
+            currentProduct.setWholesalerPrice(new Amount (wholesalerPrice));
+            currentProduct.setPublicPrice(new Amount (wholesalerPrice * 2));  // Calcular precio publico basado del precio mayorista
         } else if ("stock".equals(currentElement)) {
             // Asignar el stock
             currentProduct.setStock(Integer.parseInt(value));
