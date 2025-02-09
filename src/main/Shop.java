@@ -8,13 +8,17 @@ import model.Sale;
 //import dao.DaoImplFile;
 //import dao.DaoImplJaxb;
 import dao.Dao;
-import dao.DaoImplJDBC;
+//import dao.DaoImplJDBC;
+import dao.DaoImplHibernate;
 
 import java.util.ArrayList;  // nuevo agregado
 import java.util.List;
 //import java.io.File;
 //import java.io.FileNotFoundException;
 import java.util.Scanner;
+
+import org.hibernate.cfg.Configuration;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -35,7 +39,8 @@ public class Shop {
 	//private DaoImplFile dao;
 	
 	//private Dao dao = new DaoImplJaxb();
-	private Dao dao = new DaoImplJDBC();  // p4
+//	private Dao dao = new DaoImplJDBC();  // p4
+	private Dao dao = new DaoImplHibernate(); 
 	
 
 	final static double TAX_RATE = 1.04;
@@ -53,7 +58,8 @@ public class Shop {
         this.sales = new ArrayList<>();
         //this.dao = new DaoImplJaxb();  // inicializar con DaiImplJaxb
         //this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
-        this.dao = new DaoImplJDBC();
+        //this.dao = new DaoImplJDBC();
+        this.dao = new DaoImplHibernate();
 	}
 
 	
@@ -93,6 +99,7 @@ public class Shop {
 		
 		Employee employee = new Employee(); // nombre de empleado fijo "test" temporal
 		return employee.login(employeeId, password);
+		
 		
 	    }
 		
@@ -381,7 +388,7 @@ public class Shop {
 	    Client client = new Client(clientName, Client.MEMBER_ID, Client.getInitialBalance());
 
 		// Vender productos 
-		double totalAmount = 0.0;
+		Amount totalAmount = new Amount (0.0);
 		ArrayList<Product> productsSold = new ArrayList<>();
 		String name = "";
 		
@@ -398,7 +405,7 @@ public class Shop {
 
 			if (product != null && product.isAvailable()) {
 				//productAvailable = true;
-				totalAmount += product.getPublicPrice();
+				totalAmount.setValue(product.getPublicPrice().getValue());
 				product.setStock(product.getStock() - 1);
 				// if no more stock, set as not available to sale
 				if (product.getStock() == 0) {
@@ -416,8 +423,8 @@ public class Shop {
 
 
 		// show cost total
-        totalAmount = totalAmount * TAX_RATE;
-        Amount totalAmountWithTax = new Amount(totalAmount);
+        totalAmount.setValue(totalAmount.getValue() * TAX_RATE);
+        Amount totalAmountWithTax = new Amount(totalAmount.getValue());
         // Verificar si el cliente tiene saldo suficiente para realizar la compra
         if (client.getBalance().getValue() >= totalAmountWithTax.getValue()) {
             // Si el cliente tiene saldo suficiente, realizar el pago y actualizar el saldo de la tienda
