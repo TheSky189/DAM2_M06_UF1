@@ -221,6 +221,7 @@ public class Shop {
 	
     // Metodo para leer el inventario usando DaoImplFile
 	public void readInventory() {
+		dao.connect();
 	    this.inventory = (ArrayList<Product>) dao.getInventory();  // Cargar productos desde el archivo
 	    if (this.inventory != null && !this.inventory.isEmpty()) {
 	        System.out.println("Inventario cargado correctamente.");
@@ -229,17 +230,20 @@ public class Shop {
 	    } else {
 	        System.out.println("Error al cargar el inventario.");
 	    }
+	    dao.disconnect();
 	}
 
 
     // Metodo para escribir el inventario usando DaoImplFile
     public boolean writeInventory() {
+    	dao.connect();
         boolean result = dao.writeInventory(this.inventory);  // Guardar el inventario en el archivo
         if (result) {
             System.out.println("Inventario guardado correctamente.");
         } else {
             System.out.println("Error al guardar el inventario.");
         }
+        dao.disconnect();
         return result;
     }
     
@@ -257,7 +261,8 @@ public class Shop {
 //    }
     
     
-    private void exportInventory() {
+    public boolean exportInventory() {
+    	dao.connect();
         System.out.println("Exportando inventario a la tabla historical_inventory...");
         boolean result = dao.exportInventoryToHistory(this.inventory);
 
@@ -267,6 +272,8 @@ public class Shop {
         } else {
             System.out.println("Error al exportar el inventario.");
         }
+        dao.disconnect();
+        return result;
     }
 
 
@@ -296,15 +303,16 @@ public class Shop {
 	    wholesalerPrice = convertirDollarEuro(wholesalerPrice);
 
 	    Product product = new Product(name, wholesalerPrice, true, stock);
-	    boolean result = dao.addProduct(product);
-
-	    if (result) {
+	    
+	    if (product != null) {
 	        System.out.println("Producto añadido correctamente.");
 	        loadInventory(); 
 	    } else {
 	        System.out.println("Error al añadir el producto.");
 	    }
 	}
+
+
 
 	
 
@@ -315,27 +323,27 @@ public class Shop {
 	    Scanner scanner = new Scanner(System.in);
 
 	    System.out.print("Nombre del producto: ");
-	    String name = scanner.nextLine();
+	    String name = scanner.next();
 	    System.out.print("Cantidad a agregar: ");
 	    int additionalStock = scanner.nextInt();
 
-	    boolean result = dao.addStock(name, additionalStock);
+		Product product = findProduct(name);
 
-	    if (result) {
-	        Product product = findProduct(name);
 	        if (product != null) {
 	            product.setStock(product.getStock() + additionalStock);
 	            System.out.println("Stock añadido correctamente.");
 	        } else {
 	            System.out.println("Producto no encontrado en la lista de inventario local.");
 	        }
-	    } else {
-	        System.out.println("Error al añadir stock. El producto no existe en la base de datos.");
-	    }
-	}
+	    } 
+	
+	public void addStock(String name, int stock) {
+		dao.connect();
+		dao.addStock(name, stock);
+		dao.disconnect();
+		}
 
-
-
+		
 	
 
 	/**
@@ -531,10 +539,11 @@ public class Shop {
 	 * @param product
 	 */
 	public void addProduct(Product product) {
-
-        inventory.add(product);
-	}
-
+		inventory.add(product);
+		dao.connect();
+		dao.addProduct(product);
+		dao.disconnect();
+		}
 
 	
 	/**
@@ -621,9 +630,9 @@ public class Shop {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Seleccione el nombre del producto a eliminar: ");
         String name = scanner.next();
-        boolean result = dao.deleteProduct(name);
+        Product product = findProduct(name);
 
-        if (result) {
+        if (product != null) {
             loadInventory();
             System.out.println("Producto eliminado correctamente.");
         } else {
@@ -631,6 +640,11 @@ public class Shop {
         }
     }
 
+	public void removeProduct(String name) {
+		dao.connect();
+		dao.deleteProduct(name);
+		dao.disconnect();
+		}
 
 //        if (product != null) {
 //            inventory.remove(product);

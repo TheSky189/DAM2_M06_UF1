@@ -1,8 +1,6 @@
 package dao;
 
-import java.sql.SQLException;
 
-import exception.LimitLoginException;
 import model.Employee;
 import java.util.List;
 import model.Product;
@@ -14,7 +12,7 @@ public interface Dao {
 	public void connect();
 	
 	// metodo para obetener empleado base su ID y contraseña
-	Employee getEmployee (int employeeId, String password);
+	public Employee getEmployee (int employeeId, String password);
 	
 	// desconectar base de datos
 	public void disconnect();
@@ -22,18 +20,18 @@ public interface Dao {
 	// --- NUEVAS FUNCIONALIDADES PARA INVENTARIO. v5 ---
 	
 	// metodo para obtener el inventario desde archivo
-	List<Product> getInventory(); // devuelve lista de producto
+	public List<Product> getInventory(); // devuelve lista de producto
 	
 	// metodo para escribir el inventario al archivo
 	// devuelve true si esta correcto, false error
-	boolean writeInventory(List<Product> inventory);
+	public boolean writeInventory(List<Product> inventory);
 
 	boolean exportInventoryToHistory(List<Product> inventory);
 
-	boolean addProduct(Product product);
+	public void addProduct(Product product);
 
-	boolean deleteProduct(String productName);
+	public void deleteProduct(String productName);
 
-	boolean addStock(String productName, int additionalStock);
+	public void addStock(String productName, int additionalStock);
 	
 }

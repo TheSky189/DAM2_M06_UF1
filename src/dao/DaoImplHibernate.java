@@ -4,6 +4,7 @@ import model.Amount;
 import model.Employee;
 import model.Product;
 import model.ProductHistory;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -15,147 +16,178 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DaoImplHibernate implements Dao {
-    private Session session;
-    private Transaction tx;
-
-    @Override
-    public void connect() {
-        try {
-            if (session == null || !session.isOpen()) {
-                session = HibernateUtil.getSessionFactory().openSession();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al conectar con la base de datos");
-        }
-    }
-
-    @Override
-    public void disconnect() {
-        if (session != null && session.isOpen()) {
-            session.close();
-        }
-    }
-
-    @Override
-    public Employee getEmployee(int employeeId, String password) {
-        try {
-            tx = session.beginTransaction();
-            Query<Employee> query = session.createQuery("FROM Employee WHERE employeeId = :id AND password = :password", Employee.class);
-            query.setParameter("id", employeeId);
-            query.setParameter("password", password);
-            Employee employee = query.uniqueResult();
-            tx.commit();
-            return employee;
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-            return null;
-        }
-    }
-
+	
+	private Session session;
+	private Transaction tx;
+	
+	
+	@Override
+	public void connect() {
+		// TODO Auto-generated method stub
+		Configuration configuration = new Configuration().configure("hibernate.cfg.xml");
+		org.hibernate.SessionFactory sessionFactory = configuration.buildSessionFactory();
+		session = sessionFactory.openSession();
+		
+	}
+	
+	
     @Override
     public ArrayList<Product> getInventory() {
-        ArrayList<Product> inventory = new ArrayList<>();
-        try {
-            tx = session.beginTransaction();
-            Query<Product> query = session.createQuery("FROM Product", Product.class);
-            List<Product> productList = query.list();
-            inventory.addAll(productList);
-            for (Product product : inventory) {
-                product.setWholesalerPrice(new Amount(product.getPrice()));
-                product.setPublicPrice(new Amount(product.getPrice() * 2));
-            }
-            tx.commit();
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-        }
-        return inventory;
+    	ArrayList<Product> inventory = new ArrayList<>();
+    	try {
+    		tx = session.beginTransaction();
+    		Query qry = session.createQuery("select product from Product product");
+    		List<Product> productList = qry.list();
+    		
+    		inventory.addAll(productList);
+    		
+    		for (Product product : inventory) {
+    			System.out.println(product);
+    			
+    			product.setWholesalerPrice(new Amount (product.getPrice()));
+    			product.setPublicPrice(new Amount (product.getPrice()*2));
+    		}
+    		
+    		tx.commit();
+    		System.out.println("Get Inventory successfully");
+    	
+    	} catch (HibernateException e) {
+    		if (tx != null)
+    			tx.rollback();
+    		e.printStackTrace();
+    	}
+    	
+    	return inventory;
+        
     }
 
-    @Override
-    public boolean writeInventory(List<Product> inventory) {
-        try {
-            tx = session.beginTransaction();
-            for (Product product : inventory) {
-                session.saveOrUpdate(product);
-            }
-            tx.commit();
-            return true;
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-            return false;
-        }
-    }
+	@Override
+	public void addProduct(Product product) {
+		// TODO Auto-generated method stub
+		try {
 
-    @Override
-    public boolean addProduct(Product product) {
-        try {
-            tx = session.beginTransaction();
-            session.save(product);
-            tx.commit();
-            return true;
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-            return false;
-        }
-    }
+			tx = session.beginTransaction();
 
-    @Override
-    public boolean addStock(String productName, int additionalStock) {
-        try {
-            tx = session.beginTransaction();
-            Query<Product> query = session.createQuery("FROM Product WHERE name = :name", Product.class);
-            query.setParameter("name", productName);
-            Product product = query.uniqueResult();
-            if (product != null) {
-                product.setStock(product.getStock() + additionalStock);
-                session.update(product);
-                tx.commit();
-                return true;
-            }
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-        }
-        return false;
-    }
+			session.save(product);
 
-    @Override
-    public boolean deleteProduct(String productName) {
-        try {
-            tx = session.beginTransaction();
-            Query<Product> query = session.createQuery("FROM Product WHERE name = :name", Product.class);
-            query.setParameter("name", productName);
-            Product product = query.uniqueResult();
-            if (product != null) {
-                session.remove(product);
-                tx.commit();
-                return true;
-            }
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-        }
-        return false;
-    }
+			tx.commit();
+			System.out.println("Product inserted Successfully.");
+			
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback(); // Roll back if any exception occurs.
+			e.printStackTrace();
+		}
+	
+	}
 
     @Override
     public boolean exportInventoryToHistory(List<Product> inventory) {
-        try {
-            tx = session.beginTransaction();
-            for (Product product : inventory) {
-                session.save(new ProductHistory(product));
-            }
-            tx.commit();
-            return true;
-        } catch (HibernateException e) {
-            if (tx != null) tx.rollback();
-            e.printStackTrace();
-            return false;
-        }
+//        Transaction transaction = null;
+//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+//            transaction = session.beginTransaction();
+//            for (Product product : inventory) {
+//                session.save(new ProductHistory(product.getId(), product.getName(), product.getWholesalerPrice().getValue(), product.isAvailable(), product.getStock()));
+//                
+//            }
+//            transaction.commit();
+//            return true;
+//        } catch (Exception e) {
+//            if (transaction != null) transaction.rollback();
+//            e.printStackTrace();
+//            return false;
+//        }
+    	try {
+			tx = session.beginTransaction();
+
+			//we generate and save all new Mark elements
+			for (Product product : inventory) {
+				ProductHistory inventoryHistory = new ProductHistory(product.getId(), product.getName(), product.getPrice(), product.isAvailable(), product.getStock());
+				session.save(inventoryHistory);			
+			}
+			// we update this information in the Database
+			tx.commit();
+			System.out.println("Write Inventory Successfully.");
+			return true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback(); // Roll back if any exception occurs.
+			e.printStackTrace();
+			return false;
+		}
     }
+
+	@Override
+	public Employee getEmployee(int employeeId, String password) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void disconnect() {
+		// TODO Auto-generated method stub
+		session.close();
+	}
+
+	@Override
+	public boolean writeInventory(List<Product> inventory) {
+		// TODO Auto-generated method stub
+		try {
+			tx = session.beginTransaction();
+
+			//we generate and save all new Mark elements
+			for (Product product : inventory) {
+				ProductHistory inventoryHistory = new ProductHistory(product.getId(), product.getName(), product.getPrice(), product.isAvailable(), product.getStock());
+				session.save(inventoryHistory);			
+			}
+			// we update this information in the Database
+			tx.commit();
+			System.out.println("Write Inventory Successfully.");
+			return true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback(); // Roll back if any exception occurs.
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@Override
+	public void deleteProduct(String name) {
+		// TODO Auto-generated method stub		
+		try {
+			for (Product product : this.getInventory()) {
+				if (product.getName().equals(name)) {
+					tx = session.beginTransaction();
+					session.remove(product);
+					tx.commit();
+					System.out.println("Deleted Successfully.");					
+				}				
+			}
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback(); // Roll back if any exception occurs.
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void addStock(String name, int stock) {
+		// TODO Auto-generated method stub
+		try {
+			for (Product product : this.getInventory()) {
+				if (product.getName().equals(name)) {
+					product.setStock(product.getStock() + stock);
+					tx = session.beginTransaction();
+					session.save(product);
+					tx.commit();
+					System.out.println("Stock added Successfully.");					
+				}				
+			}
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback(); // Roll back if any exception occurs.
+			e.printStackTrace();
+		}
+	}
 }

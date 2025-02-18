@@ -178,7 +178,7 @@ public class DaoImplJDBC implements Dao {
 
     
     @Override
-    public boolean addProduct(Product product) {
+    public void addProduct(Product product) {
         String query = "INSERT INTO inventory (name, price, stock, available) VALUES (?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, product.getName());
@@ -190,10 +190,10 @@ public class DaoImplJDBC implements Dao {
             System.out.println("Executing SQL: " + statement.toString());
 
             int rowsAffected = statement.executeUpdate();
-            return rowsAffected > 0;
+            return;
         } catch (SQLException e) {
             System.err.println("SQL Error: " + e.getMessage());
-            return false;
+            return;
         }
     }
 
@@ -205,29 +205,29 @@ public class DaoImplJDBC implements Dao {
 
 
     @Override
-    public boolean addStock(String productName, int additionalStock) {
+    public void addStock(String productName, int additionalStock) {
     	String query = "UPDATE inventory SET stock = stock + ? WHERE name = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, additionalStock);
             statement.setString(2, productName);
-            return statement.executeUpdate() > 0;
+            return;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return;
         }
     }
 
 
     
     @Override
-    public boolean deleteProduct(String productName) {
+    public void deleteProduct(String productName) {
     	String query = "DELETE FROM inventory WHERE name = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, productName);
-            return statement.executeUpdate() > 0;
+            return;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return;
         }
     }
 

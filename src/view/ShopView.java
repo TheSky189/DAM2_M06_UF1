@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -179,7 +181,15 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 		// TODO Auto-generated method stub
 		
         if (e.getSource() == btnExportInventory) {
-            this.exportInventory(); // Exportar inventario y abrir vista de exportacion
+            try {
+				this.exportInventory();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} // Exportar inventario y abrir vista de exportacion
         }
 		if (e.getSource() == btnContarCaja) {
 			this.openCashView();
@@ -225,27 +235,22 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 
 
     // Metodo para exportar el inventario
-    private void exportInventory() {
-    	
-        if (shop.getInventory() != null && !shop.getInventory().isEmpty()) {
-            new ExportInvView(shop.getInventory());
-        } else {
-            JOptionPane.showMessageDialog(this, "No hay productos en el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    	
-//        boolean result = shop.writeInventory();  // Exportar el inventario
-//        File exportFile = new File("files/outputInventory.txt");  // Archivo exportado
-//
-//        if (result) {
-//            JOptionPane.showMessageDialog(this, "Inventario exportado correctamente!");
-//
-//            // Mostrar el archivo exportado en la nueva vista
-//            //new ExportInvView(shop, exportFile);  // Abre la nueva ventana con el contenido del archivo
+    private void exportInventory() throws IOException, SQLException {
+//    	shop.exportInventory();
+//        if (shop.getInventory() != null && !shop.getInventory().isEmpty()) {
 //            new ExportInvView(shop.getInventory());
-//            
 //        } else {
-//            JOptionPane.showMessageDialog(this, "Error al exportar el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
+//            JOptionPane.showMessageDialog(this, "No hay productos en el inventario.", "Error", JOptionPane.ERROR_MESSAGE);
 //        }
+    	
+    	boolean resultado = false;
+		resultado = shop.exportInventory();
+		if (resultado == true) {
+			JOptionPane.showMessageDialog(null, "Exportación completada", "", JOptionPane.INFORMATION_MESSAGE);
+		}else {
+			JOptionPane.showMessageDialog(null, "Error al exportar inventario", "ERROR", JOptionPane.ERROR_MESSAGE);
+		}
+		this.requestFocusInWindow();
     }
 
     
@@ -261,7 +266,15 @@ public class ShopView extends JFrame implements ActionListener, KeyListener{
 		
         switch (e.getKeyCode()) {
         case KeyEvent.VK_0:
-            exportInventory();
+            try {
+				exportInventory();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             break;
         case KeyEvent.VK_1:
             openCashView();

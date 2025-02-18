@@ -128,11 +128,14 @@ public class ProductView extends JDialog implements ActionListener {
                     } else {
                         try {
                             double wholesalerPrice = Double.parseDouble(priceField.getText());
+                            System.out.println("Precio: " + wholesalerPrice);
                             int stock = Integer.parseInt(stockField.getText());
                             product = new Product(productNameField.getText(), wholesalerPrice, true, stock);
                             shop.addProduct(product);
                             JOptionPane.showMessageDialog(null, "Producto añadido correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
                             dispose();
+                            
+                            System.out.println(product.getPrice());
                         } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(this, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                         }
@@ -146,13 +149,10 @@ public class ProductView extends JDialog implements ActionListener {
                     } else {
                         try {
                             int additionalStock = Integer.parseInt(stockField.getText());
-                            if (shop.getDao().addStock(productNameField.getText(), additionalStock)) {
-                                product.setStock(product.getStock() + additionalStock);
-                                JOptionPane.showMessageDialog(this, "Stock añadido correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
-                                dispose();
-                            } else {
-                                JOptionPane.showMessageDialog(this, "Error al añadir stock a la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
+                            shop.addStock(productNameField.getText(), additionalStock); // Llamar directamente
+                            product.setStock(product.getStock() + additionalStock);
+                            JOptionPane.showMessageDialog(this, "Stock añadido correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                            dispose();
                         } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(this, "Formato de número inválido", "Error", JOptionPane.ERROR_MESSAGE);
                         }
@@ -165,15 +165,13 @@ public class ProductView extends JDialog implements ActionListener {
                     if (product == null) {
                         JOptionPane.showMessageDialog(this, "Producto no existe", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        if (shop.getDao().deleteProduct(productNameField.getText())) {
-                            shop.getInventory().remove(product);
-                            JOptionPane.showMessageDialog(this, "Producto eliminado correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
-                            dispose();
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Error al eliminar el producto de la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
+                        shop.removeProduct(productNameField.getText()); // Llamar sin condición
+                        shop.getInventory().remove(product);
+                        JOptionPane.showMessageDialog(this, "Producto eliminado correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+                        dispose();
                     }
                     break;
+
 
 
                 default:
@@ -187,13 +185,13 @@ public class ProductView extends JDialog implements ActionListener {
 
 
     // Añadir un nuevo producto
-    private void addProduct(String name, int stock, double price) {
+    private void addProduct(String name,double wholesalerPrice, int stock) {
         // Verificar si el producto ya existe
         if (shop.findProduct(name) != null) {
             JOptionPane.showMessageDialog(this, "El producto ya existe", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
             // Agregar el nuevo producto al inventario
-            shop.addProduct(new Product(name, price, true, stock));
+            shop.addProduct(new Product(name, wholesalerPrice, true, stock));
             JOptionPane.showMessageDialog(this, "Producto añadido correctamente", "Informacion", JOptionPane.INFORMATION_MESSAGE);
         }
         dispose(); // cerrar ventana

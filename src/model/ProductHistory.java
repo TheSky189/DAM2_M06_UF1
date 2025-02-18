@@ -17,7 +17,7 @@ public class ProductHistory {
     private int id;
 
     @Column
-    private int productId;
+    private int id_product;
 
     @Column
     private String name;
@@ -38,12 +38,12 @@ public class ProductHistory {
         this.createdAt = LocalDateTime.now();
     }
 
-    public ProductHistory(Product product) {
-        this.productId = product.getId();
-        this.name = product.getName();
-        this.wholesalerPrice = product.getWholesalerPrice().getValue();
-        this.stock = product.getStock();
-        this.available = product.isAvailable();
+    public ProductHistory(int id_product, String name, double wholesalerPrice, boolean available, int stock) {
+        this.id_product = id_product;
+        this.name = name;
+        this.wholesalerPrice = wholesalerPrice;
+        this.available = available;
+        this.stock = stock;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -56,11 +56,11 @@ public class ProductHistory {
 	}
 
 	public int getProductId() {
-		return productId;
+		return id_product;
 	}
 
 	public void setProductId(int productId) {
-		this.productId = productId;
+		this.id_product = productId;
 	}
 
 	public String getName() {

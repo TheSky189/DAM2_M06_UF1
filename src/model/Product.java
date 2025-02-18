@@ -28,7 +28,6 @@ public class Product {
     @Column 
     private String name;
     @Column
-
     private double price;
 
 	@Transient
@@ -47,8 +46,10 @@ public class Product {
     public Product() {}
     
     public Product(String name, double wholesalerPrice, boolean available, int stock) {
+    	super();
         this.name = name;
         this.wholesalerPrice = new Amount(wholesalerPrice);
+        this.price = wholesalerPrice;
         this.available = available;
         this.stock = stock;
         this.publicPrice = new Amount (2 * wholesalerPrice);  // Calcular precio publico
