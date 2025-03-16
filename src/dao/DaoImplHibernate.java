@@ -65,6 +65,7 @@ public class DaoImplHibernate implements Dao {
 	public void addProduct(Product product) {
 		// TODO Auto-generated method stub
 		try {
+			System.out.println(product.getPrice());
 
 			tx = session.beginTransaction();
 
@@ -174,7 +175,7 @@ public class DaoImplHibernate implements Dao {
 	@Override
 	public void addStock(String name, int stock) {
 		// TODO Auto-generated method stub
-		try {
+		try {			
 			for (Product product : this.getInventory()) {
 				if (product.getName().equals(name)) {
 					product.setStock(product.getStock() + stock);

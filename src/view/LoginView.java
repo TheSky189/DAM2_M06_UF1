@@ -132,11 +132,18 @@ public class LoginView extends JFrame implements ActionListener {
 		
         String username = textField.getText();
         String password = new String(passwordField.getPassword());
+        int employeeId;
+	        try {
+	            employeeId = Integer.parseInt(username);
+	        } catch (NumberFormatException ex) {
+	            JOptionPane.showMessageDialog(this, "El número de empleado debe ser un valor numérico.", "Error", JOptionPane.ERROR_MESSAGE);
+	            return;
+	        }
         
-        Employee employee = new Employee(username); // Crear empleado con el nombre como ID
+        Employee employee = new Employee(); // Crear empleado con el nombre como ID
         
         // intentar iniciar sesion
-        boolean loginSuccessful = employee.login(Integer.parseInt(username), password); // Intentar iniciar sesión
+        boolean loginSuccessful = employee.login(employeeId, password); // Intentar iniciar sesión
 
         if (loginSuccessful) {
             // Abrir la ventana ShopView si el inicio de sesion es true

@@ -12,11 +12,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 
 //@XmlType(propOrder = {"name", "available", "wholesalerPrice", "publicPrice", "stock"})
 @XmlRootElement(name = "product")
+@XmlType(propOrder = {"available", "wholesalerPrice", "publicPrice", "stock"})
+
 
 @Entity
 @Table(name = "inventory")
@@ -39,7 +46,7 @@ public class Product {
     private boolean available;
     @Column 
     private int stock;
-    //private static int totalProducts;
+    private static int totalProducts = 0;
     
     static double EXPIRATION_RATE=0.60;  // rebaja al 60% por aprx. caducacion
     
@@ -47,6 +54,7 @@ public class Product {
     
     public Product(String name, double wholesalerPrice, boolean available, int stock) {
     	super();
+    	this.id = ++totalProducts;
         this.name = name;
         this.wholesalerPrice = new Amount(wholesalerPrice);
         this.price = wholesalerPrice;
@@ -64,11 +72,8 @@ public class Product {
     	this.price = price;
     }
 
-	
 
-//    @XmlAttribute(name = "id")
-    
-
+    @XmlAttribute(name = "id")
     public int getId() {
     	return id;
     }
@@ -78,7 +83,7 @@ public class Product {
     }
     
     
-//    @XmlAttribute(name = "name")
+    @XmlAttribute(name = "name")
     	public String getName() {
 		return name;
 	}
@@ -87,7 +92,7 @@ public class Product {
 		this.name = name;
 	}
 
-//	@XmlElement(name = "publicPrice")
+	@XmlElement(name = "publicPrice")
 	public Amount getPublicPrice() {
 		return publicPrice;
 	}
@@ -96,16 +101,17 @@ public class Product {
 		this.publicPrice = publicPrice;
 	}
 
-//	@XmlElement(name = "wholesalerPrice")
+	@XmlElement(name = "wholesalerPrice")
 		public Amount getWholesalerPrice() {
 		return wholesalerPrice;
 	}
 
 	public void setWholesalerPrice(Amount wholesalerPrice) {
+		this.publicPrice = new Amount (wholesalerPrice.getValue()*2 );
 		this.wholesalerPrice = wholesalerPrice;
 	}
 
-//	@XmlElement(name = "available")
+	@XmlElement(name = "available")
 		public boolean isAvailable() {
 		return available;
 	}
@@ -114,15 +120,26 @@ public class Product {
 		this.available = available;
 	}
 
-//	@XmlElement(name = "stock")
+	@XmlElement(name = "stock")
 		public int getStock() {
 		return stock;
 	}
 
 	public void setStock(int stock) {
 		this.stock = stock;
+		if (stock > 0) {
+			this.available = true;
+		}
 	}
 	
+	public static int getTotalProducts() {
+		return totalProducts;
+	}
+
+	public static void setTotalProducts(int totalProducts) {
+		Product.totalProducts = totalProducts;
+	}
+
 	
 	public void expire() {
 	    this.publicPrice.setValue(this.getPublicPrice().getValue() * EXPIRATION_RATE);// aplicar descuento 

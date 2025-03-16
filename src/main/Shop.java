@@ -9,7 +9,8 @@ import model.Sale;
 //import dao.DaoImplJaxb;
 import dao.Dao;
 //import dao.DaoImplJDBC;
-import dao.DaoImplHibernate;
+//import dao.DaoImplHibernate;
+import dao.DaoImplMongoDB;
 
 import java.util.ArrayList;  // nuevo agregado
 import java.util.List;
@@ -40,7 +41,8 @@ public class Shop {
 	
 	//private Dao dao = new DaoImplJaxb();
 //	private Dao dao = new DaoImplJDBC();  // p4
-	private Dao dao = new DaoImplHibernate(); 
+	//private Dao dao = new DaoImplHibernate(); 
+	private Dao dao = new DaoImplMongoDB();
 	
 
 	final static double TAX_RATE = 1.04;
@@ -59,7 +61,8 @@ public class Shop {
         //this.dao = new DaoImplJaxb();  // inicializar con DaiImplJaxb
         //this.dao = new DaoImplFile(); // inicializar objeto DaoImplFile
         //this.dao = new DaoImplJDBC();
-        this.dao = new DaoImplHibernate();
+        //this.dao = new DaoImplHibernate();
+        this.dao = new DaoImplMongoDB();
 	}
 
 	

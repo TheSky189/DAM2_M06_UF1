@@ -1,8 +1,9 @@
 package model;
 
 import main.Logable;
-import dao.Dao; // nuevo
-import dao.DaoImplJDBC;  // nuevo
+import dao.Dao; 
+//import dao.DaoImplJDBC;
+import dao.DaoImplMongoDB;
 
 
 public class Employee extends Person implements Logable {
@@ -14,15 +15,11 @@ public class Employee extends Person implements Logable {
 	private int employeeId;
 	private String password;
 	// Connection using JDBC SQL
-	private Dao dao = new DaoImplJDBC();  // NUEVO  // Objeto DAO para la conexion a la base de datos
-	
+	//private Dao dao = new DaoImplJDBC();  // Objeto DAO para la conexion a la base de datos
+	Dao dao = new DaoImplMongoDB();
 	
 	//Implementa la interfaz Logable.
 	
-	public Employee(String name) {
-		super(name);
-	}
-
 	//Constructor para inicializar los atributos del empleado
 	public Employee (int employeeId, String name, String password) {
 		super(name);
@@ -78,10 +75,13 @@ public class Employee extends Person implements Logable {
     	// conexion a datos
     	dao.connect();
     	
+        // Obtener el empleado por ID
+        Employee employee = dao.getEmployee(user, password);
+
     	// get employee datos
-    	if(dao.getEmployee(user,password) != null) {
-    		success = true;
-    	}
+        if (employee != null && employee.getPassword().equals(password)) {
+            success = true;
+        }
     	
     	// desconectar datos
     	dao.disconnect();
